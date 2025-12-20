@@ -1,0 +1,67 @@
+msm_dag_yam1l:
+  default_args:
+    owner: airflow
+    start_date: '2023-01-01'
+  schedule_interval: '@once'
+  tags:
+  - msm
+  tasks:
+    read_traces:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.traces.TracesHelper.read_traces_helper
+      filename: /home/golub/msm/data/sgy/SY_seismic_data.sgy
+      normalize: false
+    create_region:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.region.RegionCreatorHelper.create_region_helper
+      net_coords:
+      - 19395000
+      - 6673000
+      - 19400000
+      - 6678000
+      step: 50
+    hilbert_filt:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.traces.TracesHelper.hilb_filter_traces_helper
+      traces_path: +read_traces
+    load_veldata:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.parsing.VelocityLoaderHelper.get_depths_and_speeds_helper
+      filename: /home/golub/msm/data/velocity.npy
+      step: 50
+    read_recs:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.parsing.RecCoordsHandlerHelper.read_coords_helper
+      rec_coords_path: /home/golub/msm/data/recs.npy
+    get_velmodel:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.model.ModelCreatorHelper.create_model_helper
+      depths_vel_path: +load_veldata
+      rec_coords_path: +read_recs
+      region_path: +create_region
+      step: 50
+    solve_eikonal:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.time_calculation.EikonalSolverHelper.solve_helper
+      model_path: +get_velmodel
+      source: -1600
+    get_coords_on_net:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.parsing.RecCoordsHandlerHelper.get_coords_on_net_helper
+      rec_coords_path: +read_recs
+      region_path: +create_region
+    get_travel_time:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.time_calculation.TravelTimeCalculatorHelper.get_times_as_inds_with_vel_model_helper
+      esolve_path: +solve_eikonal
+      rec_coords_path: +get_coords_on_net
+      dt: 500
+    get_cube:
+      decorator: airflow.decorators.task
+      python_callable: msm_dags_ops.msm_ops.cube.CoherenceCubeCreatorHelper.get_cube_helper
+      traces_path: +hilbert_filt
+      travel_time_path: +get_travel_time
+      region_path: +create_region
+      time_interval:
+      - 0
+      - 1000

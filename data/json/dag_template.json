@@ -1,0 +1,12 @@
+{"msm_dag_yaml": 
+    {
+        "default_args": 
+            {
+                "owner": "airflow", 
+                "start_date": "2023-01-01"
+            }, 
+        "schedule_interval": "@once", 
+        "tags": ["msm"], 
+        "tasks": {}
+    }
+}

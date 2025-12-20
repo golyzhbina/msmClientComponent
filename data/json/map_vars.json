@@ -1,0 +1,96 @@
+{
+    "read_traces_helper" : {
+        "filename": "traces_path"
+    },
+
+   "preprocess_traces" : {
+        "traces_path" : "traces"
+   },
+
+    "get_depths_and_speeds_helper" : {
+        "filename" : "veldata_path"
+    },
+
+    "read_coords_helper" : {
+        "rec_coords_path": "rec_coords_path"
+    }, 
+
+    "get_coords_on_net_helper" : {
+        "rec_coords_path" : "rec_coords", 
+        "region_path" : "region"
+    }, 
+
+    "create_region_helper" : {}, 
+
+    "create_model_helper" : {
+        "depths_vel_path" : "veldata", 
+        "rec_coords_path" : "rec_coords",
+        "region_path" : "region"
+    },
+
+    "solve_helper" : {
+        "model_path" : "model"
+    },
+
+    "get_times_as_inds_with_vel_model_helper" : {
+        "esolve_path" : "esolve",
+        "rec_coords_path" : "rec_coords_on_net"
+    },
+
+    "get_cube_helper" : {
+        "traces_path" : "ftraces", 
+        "travel_time_path" : "travel_time",
+        "region_path" : "region"
+    }, 
+
+    "get_cube_with_tm_helper": {
+         "traces_path" : "ftraces", 
+        "travel_time_path" : "travel_time",
+        "region_path" : "region",
+        "tensor_path" : "tensor"
+    },
+
+    "get_slice_helper" : {
+        "cube_path" : "cube",
+        "maxes_path" : "maxes", 
+        "region_path" : "region", 
+        "rec_coords_on_net_path" : "rec_coords_on_net"
+    },
+
+    "get_df_helper" : {
+        "cube_path" : "cube"
+    }, 
+
+    "get_df_geo_helper" : {
+        "cube_path" : "cube" 
+    },
+
+    "plot_df_helper" : {
+        "df_path" : "df"
+    },
+
+    "get_maxes_helper" : {
+        "cube_path" : "cube", 
+        "df_path" : "df", 
+        "region_path" : "region"
+    },
+   
+    "draw_maxes_at_df_helper" : {
+        "maxes_path" : "maxes", 
+        "df_path" : "df"
+    }, 
+
+    "draw_tt_at_traces_helper" : {
+        "maxes_path" : "maxes", 
+        "traces_path" : "filtered_traces", 
+        "tt_path": "travel_time"
+    }, 
+
+    "draw_maxes_at_timeline_helper" : {
+        "maxes_list_path" : "maxes" 
+    },
+
+    "draw_maxes_at_square_helper" : {
+        "maxes_list_path" : "maxes"
+    }
+}

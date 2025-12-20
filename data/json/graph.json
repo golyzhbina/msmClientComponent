@@ -1,0 +1,210 @@
+{
+  "variables": {
+    "veldata_path": {
+      "input_for": ["load_veldata"],
+      "output_from": []
+    },
+    "veldata": {
+      "input_for": ["get_velmodel"],
+      "output_from": ["load_veldata"]
+    },
+    "rec_coords_path": {
+      "input_for": ["read_recs"],
+      "output_from": []
+    },
+    "rec_coords": {
+      "input_for": ["get_velmodel", "get_coords_on_net"],
+      "output_from": ["read_recs"]
+    },
+    "region_coords": {
+      "input_for": ["create_region"],
+      "output_from": []
+    },
+    "region": {
+      "input_for": ["get_velmodel", "get_cube", "get_slice", "get_maxes", "get_coords_on_net"],
+      "output_from": ["create_region"]
+    },
+    "model": {
+      "input_for": ["solve_eikonal"],
+      "output_from": ["get_velmodel"]
+    },
+    "esolve": {
+      "input_for": ["get_travel_time"],
+      "output_from": ["solve_eikonal"]
+    },
+    "rec_coords_on_net": {
+      "input_for": ["get_travel_time", "get_slice"],
+      "output_from": ["get_coords_on_net"]
+    },
+    "travel_time": {
+      "input_for": ["get_cube", "get_cube_with_tensor"],
+      "output_from": ["get_travel_time"]
+    },
+    "traces_path": {
+      "input_for": ["read_traces"],
+      "output_from": []
+    },
+    "traces": {
+      "input_for": ["preprocess_traces"],
+      "output_from": ["read_traces"]
+    },
+    "ftraces": {
+      "input_for": ["get_cube", "get_cube_with_tensor", "draw_tt_at_traces"],
+      "output_from": ["preprocess_traces"]
+    },
+    "tensor": {
+      "input_for": ["get_cube_with_tensor"],
+      "output_from": []
+    },
+    "cube": {
+      "input_for": ["get_df", "get_maxes", "get_slice"],
+      "output_from": ["get_cube", "get_cube_with_tensor"]
+    },
+    "df": {
+      "input_for": ["get_maxes", "plot_df", "draw_maxes_at_df"],
+      "output_from": ["get_df"]
+    },
+    "maxes": {
+      "input_for": ["get_slice", "draw_tt_at_traces", "draw_maxes_at_df", "draw_all_maxes_at_timeline", "draw_all_maxes_at_square"],
+      "output_from": ["get_maxes"]
+    },
+    "slices": {
+      "input_for": [],
+      "output_from": ["get_slice"]
+    },
+    "gr_df": {
+      "input_for": [],
+      "output_from": ["plot_df"]
+    },
+    "gr_tt_at_traces": {
+      "input_for": [],
+      "output_from": ["draw_tt_at_traces"]
+    },
+    "gr_max_at_df": {
+      "input_for": [],
+      "output_from": ["draw_maxes_at_df"]
+    },
+    "maxes_at_timeline": {
+      "input_for": [],
+      "output_from": ["draw_all_maxes_at_timeline"]
+    },
+    "maxes_at_square": {
+      "input_for": [],
+      "output_from": ["draw_all_maxes_at_square"]
+    }
+  },
+
+  "operations": {
+    "load_veldata": {
+      "inputs": ["veldata_path"],
+      "outputs": ["veldata"],
+      "func_path": "msm_dags_ops.msm_ops.parsing.VelocityLoaderHelper.get_depths_and_speeds_helper"
+    },
+
+    "get_velmodel": {
+      "inputs": ["veldata", "region", "rec_coords"],
+      "outputs": ["model"],
+      "func_path": "msm_dags_ops.msm_ops.model.ModelCreatorHelper.create_model_helper"
+    },
+
+    "read_recs": {
+      "inputs": ["rec_coords_path"],
+      "outputs": ["rec_coords"],
+      "func_path": "msm_dags_ops.msm_ops.parsing.RecCoordsHandlerHelper.read_coords_helper"
+    },
+    "get_coords_on_net": {
+      "inputs": ["rec_coords", "region"],
+      "outputs": ["rec_coords_on_net"],
+      "func_path": "msm_dags_ops.msm_ops.parsing.RecCoordsHandlerHelper.get_coords_on_net_helper"
+    },
+
+    "create_region": {
+      "inputs": ["region_coords"],
+      "outputs": ["region"],
+      "func_path": "msm_dags_ops.msm_ops.region.RegionCreatorHelper.create_region_helper"
+    },
+    
+    "solve_eikonal": {
+      "inputs": ["model"],
+      "outputs": ["esolve"],
+      "func_path": "msm_dags_ops.msm_ops.time_calculation.EikonalSolverHelper.solve_helper"
+    },
+    
+    "get_travel_time": {
+      "inputs": ["esolve", "rec_coords_on_net"],
+      "outputs": ["travel_time"],
+      "func_path": "msm_dags_ops.msm_ops.time_calculation.TravelTimeCalculatorHelper.get_times_as_inds_with_vel_model_helper"
+    },
+
+    "read_traces": {
+      "inputs": ["traces_path"],
+      "outputs": ["traces"],
+      "func_path": "msm_dags_ops.msm_ops.traces.TracesHelper.read_traces_helper"
+    },
+    "preprocess_traces": {
+      "inputs": ["traces"],
+      "outputs": ["ftraces"],
+      "func_path": "msm_dags_ops.msm_ops.traces.TracesHelper.preprocess_traces"
+    },
+
+    "get_cube": {
+      "inputs": ["travel_time", "ftraces", "region"],
+      "outputs": ["cube"],
+      "func_path": "msm_dags_ops.msm_ops.cube.CoherenceCubeCreatorHelper.get_cube_helper"
+    },
+
+    "get_cube_with_tensor": {
+      "inputs": ["travel_time", "ftraces", "region", "tensor"],
+      "outputs": ["cube"],
+      "func_path": "msm_dags_ops.msm_ops.cube_with_tm.CubeWithTMHelper.rotate_tensor_helper"
+    },
+
+    "get_df": {
+      "inputs": ["cube"],
+      "outputs": ["df"],
+      "func_path": "msm_dags_ops.msm_ops.result_interpret.InterpretatorHelper.get_df_helper"
+      },
+
+    "get_maxes": {
+      "inputs": ["cube", "df", "region"],
+      "outputs": ["maxes"],
+      "func_path": "msm_dags_ops.msm_ops.max.MaxProcessorHelper.get_maxes_helper"
+    }, 
+
+    "get_slice": {
+      "inputs": ["maxes", "cube", "region", "rec_coords_on_net"],
+      "outputs": ["slices"],
+      "func_path": "msm_dags_ops.msm_ops.result_interpret.InterpretatorHelper.get_slice_helper"
+    },
+    
+    "plot_df": {
+      "inputs" : ["df"],
+      "outputs" : ["gr_df"], 
+      "func_path" : "msm_dags_ops.msm_ops.result_interpret.InterpretatorHelper.plot_df_helper"
+    },
+
+    "draw_tt_at_traces": {
+      "inputs" : ["maxes", "ftraces"],
+      "outputs" : ["gr_tt_at_traces"], 
+      "func_path" : "msm_dags_ops.msm_ops.result_interpret.InterpretatorHelper.draw_maxes_at_df_helper"
+    }, 
+
+    "draw_maxes_at_df" : {
+      "inputs" : ["df", "maxes"],
+      "outputs": ["gr_max_at_df"], 
+      "func_path" : "msm_dags_ops.msm_ops.result_interpret.InterpretatorHelper.draw_tt_at_traces_helper"
+    },
+
+    "draw_all_maxes_at_timeline" : {
+      "inputs": ["maxes"],
+      "outputs": ["maxes_at_timeline"], 
+      "func_path" : "msm_dags_ops.msm_ops.result_interpret.InterpretatorHelper.draw_maxes_at_timeline_helper"
+    },
+
+    "draw_all_maxes_at_square" : {
+      "inputs": ["maxes"],
+      "outputs": ["maxes_at_square"],
+      "func_path" : "msm_dags_ops.msm_ops.result_interpret.InterpretatorHelper.draw_maxes_at_square_helper"
+    }
+  }
+}
