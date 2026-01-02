@@ -1,7 +1,7 @@
 {
     "create_region" : { "net_coords" : [19395000, 6673000, 19400000, 6678000], "step" : 50}, 
     "read_traces" : { "filename" :  "/home/golub/msm/data/sgy/SY_seismic_data.sgy", "normalize" : false },
-    "preprocess_traces" : {"actions" : ["freq_filt"], "merge_path" : null, "sc_path" : null},
+    "preprocess_traces" : {"actions" : ["freq_filt"], "merge_path" : null, "sc_path" : null, "part_size": null},
     "read_recs" : { "rec_coords_path" : "/home/golub/msm/data/recs.npy"},
     "load_veldata" : { "filename" : "/home/golub/msm/data/velocity.npy", "step" : 50 },
     "get_velmodel" : { "step" : 50 },
@@ -10,5 +10,6 @@
     "get_cube" : { "time_interval" : [0, 1000], "cube_path" : null, "kernel_size": null, "zero_padding" : null}, 
     "get_df" : {"interval" : [0, 1000]},
     "plot_df" : {"thresh_hold" : 100.0},
-    "get_maxes" : {"threshold_value": 100.0,  "radius": 200,  "kernel_size": 100, "maxes_path": null}
+    "get_maxes" : {"threshold_value": 100.0,  "radius": 200,  "kernel_size": 100, "maxes_path": null},
+    "get_coords_on_net" : {}
 }
