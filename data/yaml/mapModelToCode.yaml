@@ -1,0 +1,309 @@
+load_veldata:
+  func_path: "msm_dags_ops.vel_data_ops_wrappers.get_depths_and_speeds_helper"
+  description: "reads a one-dimensional NPY-array of velocities and create regular array of depths from -len(vel) * step to 0 with specifed step"
+  variables:
+    filename:
+      name: "veldata_path"
+      description: "path to npy-array with speeds and depths"
+      type: "str"
+    step:
+      description: "step by depths"
+      type: "int"
+    
+read_recs:
+  func_path: "msm_dags_ops.rec_coords_ops_wrappers.read_coords_helper"
+  description: "read receivers coordinates"
+  variables:
+    rec_coords_path:
+      name: "rec_coords_path"
+      description: ""
+      type: "str"
+
+get_coords_on_net:
+  func_path: "msm_dags_ops.rec_coords_ops_wrappers.get_coords_on_net"
+  description: "determines the position of receivers on the source grid"
+  variables:
+    rec_coords_path:
+      name: "rec_coords"
+      description: "path to receivers coords object"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+
+create_region:
+  func_path: "msm_dags_ops.region_ops_wrappers.create_region_helper"
+  description: "creates a list of sources on the specified grid with the specified step"
+  variables:
+    net_coords: 
+      name: "region_coords"
+      type: "List[int]"
+      description: "list of four elements - grid coordinates [X1, Y1, X2, Y2]"
+    step:
+      type: "int"
+
+get_velmodel:
+  func_path: "msm_dags_ops.model_ops_wrappers.create_model_helper"
+  description: "creates a two-dimensional velocity model, the first axis is depth, the second is distance from X1, Y1"
+  variables:
+    depths_vel_path:
+      name: "veldata"
+      description: "path to veldata object"
+      type: "str"
+    rec_coords_path:
+      name: "rec_coords"
+      description: "path to receivers coords object"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+    step: 
+      type: "int"
+
+solve_eikonal:
+  func_path: "msm_dags_ops.esolve_wrappers.solve_helper"
+  description: "solve eikonal equation"
+  variables:
+    model_path:
+      name: "model"
+      description: "path to vel model object"
+      type: "str"
+    source:
+      type: "int"
+      description: "calibration explosion depth"
+
+get_travel_time:
+  func_path: "msm_dags_ops.tt_wrappers.get_times_as_inds_with_vel_model_helper"
+  description: "obtaining an array of travel times from each receiver to each source based on the solution of the eikonal equation"
+  variables:
+    esolve_path:
+      name: "esolve"
+      description: "path to eikonal solve object"
+      type: "str"
+    rec_coords_path:
+      name: "rec_coords_on_net"
+      description: "path to receivers coords object"
+    dt: 
+      description: "trace sampling frequency in milliseconds"
+      type: "int"
+
+read_traces:
+  func_path: "msm_dags_ops.traces_ops_wrappers.read_traces_helper"
+  description: ""
+  variables:
+    filename:
+      name: "traces_path"
+      description: "path to SGY-file"
+      type: "str"
+    normalize:
+      type: "bool"
+      default: false
+      description: "if the value is True, then each trace is normalized to the maximum value"
+  expand: "filename"
+
+preprocess_traces:
+  func_path: "msm_dags_ops."
+  description: "if the value is True, then each trace is normalized to the maximum value"
+  variables:
+    traces_path:
+      name: "traces"
+      type: "str"
+      description: "path to traces obj"
+    actions:
+      type: "List[str]"
+      description: "list of actions\nactions:\nfreq_filt - frequency filtering\nhilb_filt - Hilbert transform\nabs_filt - get absolute value of each sample of traces"
+    merge_path: 
+      type: "str"
+      default: None
+      description: "The path to the traces to load. If it is not None, then part_size of the samples of the loaded traces are loaded at the end of the source traces. If you are using cumulative summation with alignment, we recommend specifying part_size = kernel_size"
+    part_size:
+      type: "int"
+      default: None
+      description: "number of samples to load"
+    sc_path:
+      type: "str"
+      default: None
+      description: "path to static corrections, if this parameter is specified, then static corrections are taken into account"
+  expand: "traces_path"
+
+get_cube:
+  func_path: "msm_dags_ops.get_cube_wrappers.get_cube_helper"
+  description: ""
+  variables:
+    traces_path:
+      name: "ftraces"
+      description: "path to filtered traces object"
+      type: "str"
+    travel_time_path:
+      name: "travel_time"
+      description: "path to travel time object"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+    time_interval:
+      type: "Tuple[int]"
+      description: "summation time interval"
+    cube_path:
+      name: "cube"
+      type: "str"
+      description: "path to cube object, if this parameter is specified, then it loads and uses the cube from the file"
+      default: None
+    kernel_size:
+      type: "int"
+      description: "if this parameter is specified, cumulative summation is performed with a window of kernel_size"
+      default: None
+    zero_padding:
+      type: bool
+      default: false
+      description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
+  expand: traces_path
+# get_cube_with_tm:
+#   func_path: "msm_dags_ops."
+#   description: ""
+#   variables:
+#     traces_path:
+#       name: "ftraces"
+#       description: ""
+#     travel_time_path:
+#       name: "travel_time"
+#       description: ""
+#     region_path:
+#       name: "region"
+#       description: ""
+#     tensor_path:
+#       name: "tensor"
+#       description: ""
+
+get_slice:
+  func_path: "msm_dags_ops.result_interpret_wrappers.get_slice_helper"
+  description: "constructs slices of a cube by time at its maxima"
+  variables:
+    cube_path:
+      name: "cube"
+      description: "path to cube obj"
+      type: "str"
+    maxes_path:
+      name: "maxes"
+      description: "path to maxes obj"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region obj"
+      type: "str"
+    rec_coords_on_net_path:
+      name: "rec_coords_on_net"
+      description: "path to receivers coords obj"
+      type: "str"
+
+get_df:
+  func_path: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
+  description: "obtains maximum cube values ​​along the time axis"
+  variables:
+    cube_path:
+      name: "cube"
+      description: "path to cube object"
+      type: str
+  expand: cube_path
+
+# get_df_geo:
+#   func_path: "msm_dags_ops."
+#   description: ""
+#   variables:
+#     cube_path:
+#       name: "cube"
+#       description: ""
+
+plot_df:
+  func_path: "msm_dags_ops."
+  description: "plot detect func"
+  variables:
+    df_path:
+      name: "df"
+      description: "path to detect func object"
+      type: "str"
+    thresh_hold:
+      type: "float"
+      description: "maximum threshold value"
+  expand: df_path
+
+get_maxes:
+  func_path: "msm_dags_ops."
+  description: ""
+  variables:
+    cube_path:
+      name: "cube"
+      description: ""
+    df_path:
+      name: "df"
+      description: ""
+    region_path:
+      name: "region"
+      description: ""
+
+draw_maxes_at_df:
+  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"
+  description: ""
+  variables:
+    maxes_path:
+      name: "maxes"
+      description: "path ot maxes object"
+      type: "str"
+    df_path:
+      name: "df"
+      description: "path to df object"
+      type: str
+
+draw_tt_at_traces:
+  func_path: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_helper"
+  description: ""
+  variables:
+    maxes_path:
+      name: "maxes"
+      description: "path to maxes object"
+      type: str
+    traces_path:
+      name: "ftraces"
+      type: str
+      description: "path to traces object"
+    tt_path:
+      name: "travel_time"
+      description: "parh to travel time object"
+      type: str
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+    radius:
+      type: "int"
+      description: "maximum highlight radius on the traces"
+    vmin:
+      type: "float"
+      description: "vmin of plt.imshow()"
+      default: None
+    vmax:
+      type: "float"
+      description: "vmax of plt.imshow()"
+      default: None
+
+    
+draw_maxes_at_timeline:
+  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_timeline_helper"
+  description: "plot maxes at timeline"
+  variables:
+    maxes_list_path:
+      type: "str"
+      name: "maxes"
+      description: "path to maxes object"
+
+draw_maxes_at_square:
+  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_square_helper"
+  description: "plot maxes at source region"
+  variables:
+    maxes_list_path:
+      type: "str"
+      name: "maxes"
+      description: "path to maxes object"

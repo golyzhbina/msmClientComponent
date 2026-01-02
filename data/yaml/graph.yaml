@@ -1,0 +1,247 @@
+graph:
+  variables:
+    veldata_path:
+      class: veldata_path
+    veldata:
+      class: veldata
+    rec_coords_path:
+      class: rec_coords_path
+    rec_coords:
+      class: rec_coords
+    region_coords:
+      class: region_coords
+    region:
+      class: region
+    model:
+      class: model
+    esolve:
+      class: esolve
+    rec_coords_on_net:
+      class: rec_coords_on_net
+    travel_time:
+      class: travel_time
+    traces_path:
+      class: traces_path
+    traces:
+      class: traces
+    ftraces:
+      class: ftraces
+    tensor:
+      class: tensor
+    cube_wo_tm:
+      class: cube
+    cube_with_tm:
+      class: cube
+    df:
+      class: df
+    maxes:
+      class: maxes
+    slices:
+      class: slices
+    gr_df:
+      class: gr_df
+    gr_tt_at_traces:
+      class: gr_tt_at_traces
+    gr_max_at_df:
+      class: gr_max_at_df
+    maxes_at_timeline:
+      class: maxes_at_timeline
+    maxes_at_square:
+      class: maxes_at_square
+  
+  op_characters:
+    diff:
+      from: 0
+      to: 1
+
+  operations:
+    load_veldata:
+      class: load_veldata
+      characters:
+        diff: 1
+      inputs:
+        veldata_path: name
+      outputs:
+        - veldata
+  
+    get_velmodel:
+      class: get_velmodel
+      characters:
+        diff: 1
+      inputs:
+        veldata: name
+        region: name
+        rec_coords: name
+      outputs:
+        - model
+    
+    read_recs:
+      class: read_recs
+      characters:
+        diff: 1
+      inputs:
+        rec_coords_path: name
+      outputs:
+        - rec_coords
+    
+    get_coords_on_net:
+      class: get_coords_on_net
+      characters:
+        diff: 1
+      inputs:
+        rec_coords: name
+        region: name
+      outputs:
+        - rec_coords_on_net
+    
+    create_region:
+      class: create_region
+      characters:
+        diff: 1
+      inputs:
+        region_coords: name
+      outputs:
+        - region
+    
+    solve_eikonal:
+      class: solve_eikonal
+      characters:
+        diff: 1
+      inputs:
+        model: name
+      outputs:
+        - esolve
+    
+    get_travel_time:
+      class: get_travel_time
+      characters:
+        diff: 1
+      inputs:
+        esolve: name
+        rec_coords_on_net: name
+      outputs:
+        - travel_time
+    
+    read_traces:
+      class: read_traces
+      characters:
+        diff: 1
+      inputs:
+        traces_path: name
+      outputs:
+        - traces
+    
+    preprocess_traces:
+      class: preprocess_traces
+      characters:
+        diff: 1
+      inputs:
+        traces: name
+      outputs:
+        - ftraces
+    
+    get_cube:
+      class: get_cube
+      characters:
+        diff: 1
+      inputs:
+        travel_time: name
+        ftraces: name
+        region: name
+      outputs:
+        - cube_wo_tm
+    
+    # get_cube_with_tensor:
+    #   class: get_cube_with_tensor
+    #   characters:
+    #     diff: 1
+    #   inputs:
+    #     travel_time: name
+    #     ftraces: name
+    #     region: name
+    #     tensor: name
+    #   outputs:
+    #     - cube_with_tm
+    
+    get_df:
+      class: get_df
+      characters:
+        diff: 1
+      inputs:
+        cube: class
+      outputs:
+        - df
+    
+    get_maxes:
+      class: get_maxes
+      characters:
+        diff: 1
+      inputs:
+        cube: name
+        df: name
+        region: name
+      outputs:
+        - maxes
+    
+    get_slice:
+      class: get_slice
+      characters:
+        diff: 1
+      inputs:
+        maxes: name
+        cube: name
+        region: name
+        rec_coords_on_net: name
+      outputs:
+        - slices
+    
+    plot_df:
+      class: plot_df
+      characters:
+        diff: 1
+      inputs:
+        df: name
+      outputs:
+        - gr_df
+    
+    draw_tt_at_traces:
+      class: draw_tt_at_traces
+      characters:
+        diff: 1
+      inputs:
+        maxes: name
+        ftraces: name
+      outputs:
+        - gr_tt_at_traces
+    
+    draw_maxes_at_df:
+      class: draw_maxes_at_df
+      characters:
+        diff: 1
+      inputs:
+        df: name
+        maxes: name
+      outputs:
+        - gr_max_at_df
+    
+    draw_all_maxes_at_timeline:
+      class: draw_all_maxes_at_timeline
+      characters:
+        diff: 1
+      inputs:
+        maxes: name
+      outputs:
+        - maxes_at_timeline
+    
+    draw_all_maxes_at_square:
+      class: draw_all_maxes_at_square
+      characters:
+        diff: 1
+      inputs:
+        maxes: name
+      outputs:
+        - maxes_at_square
+
+        
+
+    
