@@ -161,22 +161,22 @@ get_cube:
       default: false
       description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
   expand: traces_path
-# get_cube_with_tm:
-#   func_path: "msm_dags_ops."
-#   description: ""
-#   variables:
-#     traces_path:
-#       name: "ftraces"
-#       description: ""
-#     travel_time_path:
-#       name: "travel_time"
-#       description: ""
-#     region_path:
-#       name: "region"
-#       description: ""
-#     tensor_path:
-#       name: "tensor"
-#       description: ""
+get_cube_with_tensor:
+  func_path: "msm_dags_ops."
+  description: ""
+  variables:
+    traces_path:
+      name: "ftraces"
+      description: ""
+    travel_time_path:
+      name: "travel_time"
+      description: ""
+    region_path:
+      name: "region"
+      description: ""
+    tensor_path:
+      name: "tensor"
+      description: ""
 
 get_slice:
   func_path: "msm_dags_ops.result_interpret_wrappers.get_slice_helper"
@@ -237,12 +237,15 @@ get_maxes:
     cube_path:
       name: "cube"
       description: ""
+      type: "str"
     df_path:
       name: "df"
       description: ""
+      type: "str"
     region_path:
       name: "region"
       description: ""
+      type: "str"
 
 draw_maxes_at_df:
   func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"

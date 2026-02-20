@@ -28,18 +28,29 @@ class Generator:
     def get_inputs(self) -> OrderedDict:
         
         inputs = OrderedDict()
+        added_vars = []
         for op in self.subgraph:
             inputs[op] = dict()
             map_info = self.map_cm_to_code[op]
             for v_name, v_info in map_info["variables"].items():
                 map_name = v_info.get("name", None)
+                var_id = map_name if map_name else v_name
+
+                if var_id  in added_vars:
+                    continue
+
                 if map_name in self.variables and \
                    len(self.variables[map_name]["output_from"]) == 0  or \
                    map_name not in self.variables:
                     inputs[op][v_name] = v_info
                     inputs[op][v_name].pop("name", None)
+                    inputs[op][v_name]["id"] = var_id
+                    added_vars.append(var_id)
 
         return inputs
+    
+    def get_operation_description(self, op_name): 
+        return self.map_cm_to_code[op_name].get("description", "")
     
     # def get_declaration_file(filrname: str) -> None:
     #     pass

@@ -1,3 +1,7 @@
+operation_characteristics:
+  diff:
+    default: 1.0
+
 graph:
   variables:
     veldata_path:
@@ -48,11 +52,6 @@ graph:
       class: maxes_at_timeline
     maxes_at_square:
       class: maxes_at_square
-  
-  op_characters:
-    diff:
-      from: 0
-      to: 1
 
   operations:
     load_veldata:
@@ -151,17 +150,17 @@ graph:
       outputs:
         - cube_wo_tm
     
-    # get_cube_with_tensor:
-    #   class: get_cube_with_tensor
-    #   characters:
-    #     diff: 1
-    #   inputs:
-    #     travel_time: name
-    #     ftraces: name
-    #     region: name
-    #     tensor: name
-    #   outputs:
-    #     - cube_with_tm
+    get_cube_with_tensor:
+      class: get_cube_with_tensor
+      characters:
+        diff: 1
+      inputs:
+        travel_time: name
+        ftraces: name
+        region: name
+        tensor: name
+      outputs:
+        - cube_with_tm
     
     get_df:
       class: get_df
@@ -224,7 +223,7 @@ graph:
       outputs:
         - gr_max_at_df
     
-    draw_all_maxes_at_timeline:
+    draw_maxes_at_timeline:
       class: draw_all_maxes_at_timeline
       characters:
         diff: 1
@@ -233,7 +232,7 @@ graph:
       outputs:
         - maxes_at_timeline
     
-    draw_all_maxes_at_square:
+    draw_maxes_at_square:
       class: draw_all_maxes_at_square
       characters:
         diff: 1

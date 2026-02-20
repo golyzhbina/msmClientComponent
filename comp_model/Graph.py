@@ -2,14 +2,12 @@ from collections import defaultdict, deque
 
 
 class Graph:
-    #def __init__(self):
-    operations: dict = {}  # имя операции -> (inputs, outputs)
-    forward_graph: defaultdict  = defaultdict(list) # прямой граф: переменная/операция -> соседи
-    reverse_graph: defaultdict  = defaultdict(list) # обратный граф
-
+    
     def __init__(self, relationship):
-        
-        self.operations = relationship
+
+        self.forward_graph: defaultdict  = defaultdict(list) # прямой граф: переменная/операция -> соседи
+        self.reverse_graph: defaultdict  = defaultdict(list) # обратный граф
+        self.operations: dict = relationship
 
         for op, vars in self.operations.items():
             inputs, outputs = vars
