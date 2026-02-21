@@ -40,7 +40,9 @@ class ComputeModel:
                 if not (cl in var_classes):
                     var_classes[cl] = []
 
-            var_classes[cl].append(var_name)
+                var_classes[cl].append(var_name)
+
+        print(var_classes)
         
 
         for op_name, op_descr in graph_dict["operations"].items():
