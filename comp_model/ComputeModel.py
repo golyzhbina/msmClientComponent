@@ -244,7 +244,11 @@ class ComputeModel:
         nodes = {}
         edges = []
         for op in relations:
-            nodes[op] = "operation"
+            if type(self.nodes[op]) == FictiveOperation:
+                nodes[op] = "fictiveOperation"
+            else:
+                nodes[op] = "operation"
+            
             for var in relations[op][0]:
                 nodes[var] = "variable"
                 edges.append({"from": var, "to": op})
