@@ -125,6 +125,7 @@ class ComputeModel:
             if node in self.relationship:
                 subgraph_rel[node] = self.relationship[node]
 
+        subgraph_rel = self.delete_fictive_ops(subgraph_rel)
         all_paths = self.__get_all_paths(subgraph_rel, outputs)
         all_cnvrt_paths = []
         for path in all_paths:
