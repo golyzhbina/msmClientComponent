@@ -27,7 +27,7 @@ graph:
     traces_path:
       class: traces_path
     traces:
-      class: 
+      class: traces
     merged_traces:
       class: traces
     freq_traces:
