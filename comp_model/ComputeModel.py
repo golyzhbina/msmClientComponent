@@ -125,15 +125,18 @@ class ComputeModel:
             if node in self.relationship:
                 subgraph_rel[node] = self.relationship[node]
 
-        subgraph_rel = self.delete_fictive_ops(subgraph_rel)
+
         all_paths = self.__get_all_paths(subgraph_rel, outputs)
         all_cnvrt_paths = []
+        path_operations_sets = []
         for path in all_paths:
-            graph = Graph(path)
-            if not self.is_reachable_from_inputs(graph, inputs, outputs)[0]:
+            path_copy = self.delete_fictive_ops(path)
+           
+            if set(path_copy.keys()) in path_operations_sets:
                 continue
-
-            characts = self.__get_path_characteristics(path)
+            path_operations_sets.append(set(path_copy.keys()))
+        
+            characts = self.__get_path_characteristics(path_copy)
             nodes, edges = self.cvrt_to_graph(path)
             all_cnvrt_paths.append({"nodes": nodes, "edges": edges, "characts": characts})         
 
