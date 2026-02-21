@@ -59,9 +59,10 @@ class ComputeModel:
         
         for var_class, var_list in var_classes.items():
             if len(var_list) == 1 and var_list[0] != var_class:
-                self.relationship[f"{var}_to_{var_class}"] = [[var_list[0]], [var_class]]
-                self.nodes[f"{var}_to_{var_class}"] = FictiveOperation(f"{var}_to_{var_class}")
+                self.relationship[f"{var_list[0]}_to_{var_class}"] = [[var_list[0]], [var_class]]
+                self.nodes[f"{var_list[0]}_to_{var_class}"] = FictiveOperation(f"{var_list[0]}_to_{var_class}")
             elif len(var_list) > 1:
+                print(var_list)
                 for var in var_list:
                     self.relationship[f"{var}_to_{var_class}"] = [[var], [var_class]]  
                     self.nodes[f"{var}_to_{var_class}"] = FictiveOperation(f"{var}_to_{var_class}")          
@@ -73,7 +74,7 @@ class ComputeModel:
                 return (False, f"При данных входных переменных выходная переменная {var} недостижима")
         return (True, "")
     
-    def get_ordered_subgraph(self, nodes: list):
+    def get_ordered_subgraph(self, nodes: Dict[str, str], edges: Dict[str, str]):
         operations = list(filter(lambda x: x in self.relationship, nodes))
     
         execution_order = []
@@ -93,11 +94,18 @@ class ComputeModel:
         for op in operations:
             visit(op)
     
-        subgraph_rel = OrderedDict()
+        ordered_subgraph = OrderedDict()
 
         for op in execution_order:
-            subgraph_rel[op] = self.relationship[op]
-        return subgraph_rel
+            ordered_subgraph[op] = [[], []]
+
+        for edge in edges:
+            if edge["from"] in self.relationship:
+                ordered_subgraph[edge["from"]][-1].append(edge["to"])
+            if edge["to"] in self.relationship:
+                ordered_subgraph[edge["to"]][0].append(edge["from"])
+
+        return ordered_subgraph
     
     def get_paths(self, inputs: List[str], outputs: List[str]) -> OrderedDict:
 
@@ -247,7 +255,7 @@ class ComputeModel:
 
         for op_name in graph:
             if type(self.nodes[op_name]) == FictiveOperation:
-                replace_map[graph[op_name][1][0]] = graph[op_name][0][0]
+                replace_map[graph[op_name][0][0]] = graph[op_name][1][0]
                 op_to_delete.append(op_name)
 
         for op_name in op_to_delete:

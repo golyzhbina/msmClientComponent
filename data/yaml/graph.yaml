@@ -27,8 +27,14 @@ graph:
     traces_path:
       class: traces_path
     traces:
+      class: 
+    merged_traces:
       class: traces
-    ftraces:
+    freq_traces:
+      class: ftraces
+    abs_traces:
+      class: ftraces
+    hilb_traces:
       class: ftraces
     tensor:
       class: tensor
@@ -129,15 +135,42 @@ graph:
         traces_path: name
       outputs:
         - traces
+
+    merge_traces:
+      class: merge_traces
+      characters:
+        diff: 1
+      inputs:
+        traces: name
+      outputs:
+        - merged_traces
     
-    preprocess_traces:
+    frequency_filtration:
       class: preprocess_traces
       characters:
         diff: 1
       inputs:
         traces: name
       outputs:
-        - ftraces
+        - freq_traces
+      
+    abs_filtration:
+      class: preprocess_traces
+      characters:
+        diff: 1
+      inputs:
+        traces: name
+      outputs:
+        - abs_traces
+
+    hilb_filtration:
+      class: preprocess_traces
+      characters:
+        diff: 1
+      inputs:
+        traces: name
+      outputs:
+        - hilb_traces
     
     get_cube:
       class: get_cube
@@ -145,7 +178,7 @@ graph:
         diff: 1
       inputs:
         travel_time: name
-        ftraces: name
+        ftraces: class
         region: name
       outputs:
         - cube_wo_tm
@@ -156,7 +189,7 @@ graph:
         diff: 1
       inputs:
         travel_time: name
-        ftraces: name
+        ftraces: class
         region: name
         tensor: name
       outputs:
@@ -209,7 +242,7 @@ graph:
         diff: 1
       inputs:
         maxes: name
-        ftraces: name
+        ftraces: class
       outputs:
         - gr_tt_at_traces
     
