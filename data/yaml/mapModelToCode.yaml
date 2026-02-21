@@ -103,34 +103,104 @@ read_traces:
       description: "if the value is True, then each trace is normalized to the maximum value"
   expand: "filename"
 
-preprocess_traces:
-  func_path: "msm_dags_ops."
-  description: "if the value is True, then each trace is normalized to the maximum value"
+# preprocess_traces:
+#   func_path: "msm_dags_ops."
+#   description: "if the value is True, then each trace is normalized to the maximum value"
+#   variables:
+#     traces_path:
+#       name: "traces"
+#       type: "str"
+#       description: "path to traces obj"
+#     actions:
+#       type: "List[str]"
+#       description: "list of actions\nactions:\nfreq_filt - frequency filtering\nhilb_filt - Hilbert transform\nabs_filt - get absolute value of each sample of traces"
+#     merge_path: 
+#       type: "str"
+#       default: None
+#       description: "The path to the traces to load. If it is not None, then part_size of the samples of the loaded traces are loaded at the end of the source traces. If you are using cumulative summation with alignment, we recommend specifying part_size = kernel_size"
+#     part_size:
+#       type: "int"
+#       default: None
+#       description: "number of samples to load"
+#     sc_path:
+#       type: "str"
+#       default: None
+#       description: "path to static corrections, if this parameter is specified, then static corrections are taken into account"
+#   expand: "traces_path"
+
+get_stat_corrs:
+  func_path: "msm_dags_ops.stat_cors_wrappers.get_stats_helper"
+  description: ""
   variables:
-    traces_path:
-      name: "traces"
+    traces_path: 
+      name: "traces_wo_sc"
       type: "str"
       description: "path to traces obj"
-    actions:
-      type: "List[str]"
-      description: "list of actions\nactions:\nfreq_filt - frequency filtering\nhilb_filt - Hilbert transform\nabs_filt - get absolute value of each sample of traces"
-    merge_path: 
+    window_size:
+      type: "int"
+      decription: "amount traces for calculate etalon"
+
+apply_stat_corrs:
+  func_path: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
+  description: ""
+  variables:
+    traces_path: 
+      name: "traces_wo_sc"
       type: "str"
-      default: None
-      description: "The path to the traces to load. If it is not None, then part_size of the samples of the loaded traces are loaded at the end of the source traces. If you are using cumulative summation with alignment, we recommend specifying part_size = kernel_size"
+      description: "path to traces obj"
+    stat_cors_path:
+      name: "stat_corrs"
+      type: "str"
+      description: "path to stat corrs obj"
+
+hilb_filtration:
+  func_path: "msm_dags_ops.traces_ops_wrappers.hilb_filter_traces_helper"
+  description: ""
+  variables:
+    traces_path:
+      name: "traces_class"
+      type: "str"
+      description: "path to traces obj"
+  expand: "traces_path"
+
+abs_filtration:
+  func_path: "msm_dags_ops.traces_ops_wrappers.abs_filter_traces_helper"
+  description: ""
+  variables:
+    traces_path:
+      name: "traces_class"
+      type: "str"
+      description: "path to traces obj"
+  expand: "traces_path"
+
+frequency_filtration:
+  func_path: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_helper"
+  description: ""
+  variables:
+    traces_path:
+      name: "traces_class"
+      type: "str"
+      description: "path to traces obj"
+  expand: "traces_path"
+
+merge_traces:
+  func_path: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_helper"
+  description: ""
+  variables:
+    traces1_path:
+      name: "traces"
+      type: "str"
+      description: "path to main traces obj"
+    traces2_path:
+      type: "str"
+      description: "path to additional traces obj"
     part_size:
       type: "int"
-      default: None
-      description: "number of samples to load"
-    sc_path:
-      type: "str"
-      default: None
-      description: "path to static corrections, if this parameter is specified, then static corrections are taken into account"
-  expand: "traces_path"
+      description: "number of loaded traces"
 
 get_cube:
   func_path: "msm_dags_ops.get_cube_wrappers.get_cube_helper"
-  description: ""
+  description: "coherent summation"
   variables:
     traces_path:
       name: "ftraces"
@@ -147,23 +217,11 @@ get_cube:
     time_interval:
       type: "Tuple[int]"
       description: "summation time interval"
-    cube_path:
-      name: "cube"
-      type: "str"
-      description: "path to cube object, if this parameter is specified, then it loads and uses the cube from the file"
-      default: None
-    kernel_size:
-      type: "int"
-      description: "if this parameter is specified, cumulative summation is performed with a window of kernel_size"
-      default: None
-    zero_padding:
-      type: bool
-      default: false
-      description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
   expand: traces_path
+
 get_cube_with_tensor:
-  func_path: "msm_dags_ops."
-  description: ""
+  func_path: "msm_dags_ops.get_cube_wrappers.get_cube_with_tm_helper"
+  description: "coherent summation with tensor moment"
   variables:
     traces_path:
       name: "ftraces"
@@ -177,6 +235,22 @@ get_cube_with_tensor:
     tensor_path:
       name: "tensor"
       description: ""
+
+get_cumsum:
+  func_path: "msm_dags_ops.get_cube_wrappers.get_cumsum_helper"
+  description: "cumulative summation with a window of kernel_size"
+  variables:
+    cube_path:
+      name: "cube_wo_cumsum"
+      type: "str"
+      description: "path to cube object"
+    kernel_size:
+      type: "int"
+      description: ""
+    zero_padding:
+      type: bool
+      default: false
+      description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
 
 get_slice:
   func_path: "msm_dags_ops.result_interpret_wrappers.get_slice_helper"

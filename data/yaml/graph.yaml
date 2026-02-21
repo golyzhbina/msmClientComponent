@@ -43,13 +43,23 @@ graph:
     merged_traces:
       class:
         - traces_class
+        - traces_wo_sc
     freq_traces:
       class:
         - ftraces
+        - traces_wo_sc
     abs_traces:
       class:
         - ftraces
+        - traces_wo_sc
     hilb_traces:
+      class:
+        - ftraces
+        - traces_wo_sc
+    stat_corrs:
+      class:
+       - stat_corrs
+    traces_with_sc:
       class:
         - ftraces
     tensor:
@@ -203,7 +213,27 @@ graph:
         traces_class: class
       outputs:
         - hilb_traces
-    
+
+    get_stat_corrs:
+      class: "get_stat_corrs"
+      characters:
+        diff: 1
+      inputs:
+        traces_wo_sc: class
+      outputs:
+        - stat_corrs
+      
+
+    apply_stat_corrs:
+      class: preprocess_traces
+      characters:
+        diff: 1
+      inputs:
+        stat_corrs: name
+        traces_wo_sc: class
+      outputs:
+        - traces_with_sc
+
     get_cube:
       class: get_cube
       characters:
