@@ -36,10 +36,11 @@ class ComputeModel:
         for var_name, var_descr in graph_dict["variables"].items():
             self.nodes[var_name] = Variable(var_name, var_descr["class"])
 
-            if not var_descr["class"] in var_classes:
-                var_classes[var_descr["class"]] = []
+            for cl in var_descr["class"]:
+                if not (cl in var_classes):
+                    var_classes[cl] = []
 
-            var_classes[var_descr["class"]].append(var_name)
+            var_classes[cl].append(var_name)
         
 
         for op_name, op_descr in graph_dict["operations"].items():
@@ -59,16 +60,17 @@ class ComputeModel:
         
         for var_class, var_list in var_classes.items():
             if len(var_list) == 1 and var_list[0] != var_class:
+                
                 self.relationship[f"{var_list[0]}_to_{var_class}"] = [[var_list[0]], [var_class]]
                 self.nodes[f"{var_list[0]}_to_{var_class}"] = FictiveOperation(f"{var_list[0]}_to_{var_class}")
             elif len(var_list) > 1:
-                print(var_list)
+                
                 for var in var_list:
                     self.relationship[f"{var}_to_{var_class}"] = [[var], [var_class]]  
                     self.nodes[f"{var}_to_{var_class}"] = FictiveOperation(f"{var}_to_{var_class}")          
     
-    def is_reachable_from_inputs(self, inputs: List[str], outputs: List[str]):
-        reachable_from_inputs = self.graph.bfs_forward(inputs)
+    def is_reachable_from_inputs(self, graph: Graph, inputs: List[str], outputs: List[str]):
+        reachable_from_inputs = graph.bfs_forward(inputs)
         for var in outputs:
             if var not in reachable_from_inputs:
                 return (False, f"При данных входных переменных выходная переменная {var} недостижима")
@@ -124,6 +126,10 @@ class ComputeModel:
         all_paths = self.__get_all_paths(subgraph_rel, outputs)
         all_cnvrt_paths = []
         for path in all_paths:
+            graph = Graph(path)
+            if not self.is_reachable_from_inputs(graph, inputs, outputs)[0]:
+                continue
+
             characts = self.__get_path_characteristics(path)
             nodes, edges = self.cvrt_to_graph(path)
             all_cnvrt_paths.append({"nodes": nodes, "edges": edges, "characts": characts})         
@@ -215,6 +221,8 @@ class ComputeModel:
         knf, map_formula_names = self.__build_knf(outputs, subgraph, reversed_relations)
         dnf = str(to_dnf(knf, simplify=True, force=True))
         paths = self.__get_paths_from_dnf(dnf, map_formula_names, outputs)
+            
+
         return paths
     
     def __get_path_characteristics(self, path: Dict[str, str]):

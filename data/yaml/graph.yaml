@@ -5,59 +5,91 @@ operation_characteristics:
 graph:
   variables:
     veldata_path:
-      class: veldata_path
+      class:
+        - veldata_path
     veldata:
-      class: veldata
+      class:
+        - veldata
     rec_coords_path:
-      class: rec_coords_path
+      class:
+        - rec_coords_path
     rec_coords:
-      class: rec_coords
+      class:
+        - rec_coords
     region_coords:
-      class: region_coords
+      class:
+        - region_coords
     region:
-      class: region
+      class:
+        - region
     model:
-      class: model
+      class:
+        - model
     esolve:
-      class: esolve
+      class:
+        - esolve
     rec_coords_on_net:
-      class: rec_coords_on_net
+      class:
+        - rec_coords_on_net
     travel_time:
-      class: travel_time
+      class:
+        - travel_time
     traces_path:
-      class: traces_path
+      class:
+        - traces_path
     traces:
-      class: traces_class
+      class:
+        - traces_class
     merged_traces:
-      class: traces_class
+      class:
+        - traces_class
     freq_traces:
-      class: ftraces
+      class:
+        - ftraces
     abs_traces:
-      class: ftraces
+      class:
+        - ftraces
     hilb_traces:
-      class: ftraces
+      class:
+        - ftraces
     tensor:
-      class: tensor
+      class:
+        - tensor
     cube_wo_tm:
-      class: cube
+      class:
+        - cube_wo_cumsum
+        - cube
     cube_with_tm:
-      class: cube
+      class:
+        - cube_wo_cumsum
+        - cube
+    cumsum_cube:
+      class:
+        - cube 
     df:
-      class: df
+      class:
+        - df
     maxes:
-      class: maxes
+      class:
+        - maxes
     slices:
-      class: slices
+      class:
+        - slices
     gr_df:
-      class: gr_df
+      class:
+        - gr_df
     gr_tt_at_traces:
-      class: gr_tt_at_traces
+      class:
+        - gr_tt_at_traces
     gr_max_at_df:
-      class: gr_max_at_df
+      class:
+        - gr_max_at_df
     maxes_at_timeline:
-      class: maxes_at_timeline
+      class:
+        - maxes_at_timeline
     maxes_at_square:
-      class: maxes_at_square
+      class:
+        - maxes_at_square
 
   operations:
     load_veldata:
@@ -194,6 +226,15 @@ graph:
         tensor: name
       outputs:
         - cube_with_tm
+    
+    get_cumsum:
+      class: get_cumsum
+      characters:
+        diff: 1
+      inputs:
+        cube_wo_cumsum: class
+      outputs:
+       - cumsum_cube
     
     get_df:
       class: get_df
