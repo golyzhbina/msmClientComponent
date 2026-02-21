@@ -27,9 +27,9 @@ graph:
     traces_path:
       class: traces_path
     traces:
-      class: traces
+      class: traces_class
     merged_traces:
-      class: traces
+      class: traces_class
     freq_traces:
       class: ftraces
     abs_traces:
@@ -150,7 +150,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces: name
+        traces_class: class
       outputs:
         - freq_traces
       
@@ -159,7 +159,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces: name
+        traces_class: class
       outputs:
         - abs_traces
 
@@ -168,7 +168,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces: name
+        traces_class: class
       outputs:
         - hilb_traces
     
