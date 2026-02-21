@@ -10,7 +10,10 @@ from typing import Dict, Tuple, List, Union
 from collections import OrderedDict, deque
 from copy import deepcopy
 
-from sympy import sympify, to_dnf
+from pyeda.inter import expr
+import re
+
+#from time import time
 
 class ComputeModel:
     def __init__(self, path_to_model: str):
@@ -41,9 +44,6 @@ class ComputeModel:
                     var_classes[cl] = []
 
                 var_classes[cl].append(var_name)
-
-        print(var_classes)
-        
 
         for op_name, op_descr in graph_dict["operations"].items():
             op = Operation(op_name, op_descr["class"], op_descr["characters"])
@@ -125,8 +125,9 @@ class ComputeModel:
             if node in self.relationship:
                 subgraph_rel[node] = self.relationship[node]
 
-
+        start1 = time()
         all_paths = self.__get_all_paths(subgraph_rel, outputs)
+        start2 = time()
         all_cnvrt_paths = []
         path_operations_sets = []
         for path in all_paths:
@@ -138,7 +139,11 @@ class ComputeModel:
         
             characts = self.__get_path_characteristics(path_copy)
             nodes, edges = self.cvrt_to_graph(path)
-            all_cnvrt_paths.append({"nodes": nodes, "edges": edges, "characts": characts})         
+            all_cnvrt_paths.append({"nodes": nodes, "edges": edges, "characts": characts})
+        start3 = time()
+
+        # print(f"t1 {start2 - start1}")
+        # print(f"t2 {start3 - start3}")      
 
         nodes, edges = self.cvrt_to_graph(subgraph_rel)
         return {"nodes": nodes, "edges": edges}, all_cnvrt_paths
@@ -176,20 +181,16 @@ class ComputeModel:
 
         knf_list.pop()
 
-        knf = sympify("".join(knf_list), evaluate=False)
+        knf = expr("".join(knf_list))
         
         return knf, map_name_in_formula
     
     def __get_paths_from_dnf(self, dnf: str, map_fomula_names: Dict[str, str], outputs: List[str]):
 
-        paths = []
-        if " | " in dnf:
-            paths = str(dnf).split(" | ")
-            paths = [v[1:-1] for v in paths]
-        else:
-            paths = [dnf]
+        regexpr = r"And\(([^)]+)\)"
+        paths = re.findall(regexpr, dnf)
 
-        paths = [v.split(" & ") for v in paths]
+        paths = [v.split(", ") for v in paths]
         paths = [[map_fomula_names[v] for v in path] for path in paths]
 
         path_rels = []
@@ -225,7 +226,7 @@ class ComputeModel:
                 reversed_relations[var]["output from"].append(op)
 
         knf, map_formula_names = self.__build_knf(outputs, subgraph, reversed_relations)
-        dnf = str(to_dnf(knf, simplify=True, force=True))
+        dnf = str(knf.to_dnf())
         paths = self.__get_paths_from_dnf(dnf, map_formula_names, outputs)
             
 
