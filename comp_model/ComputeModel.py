@@ -13,8 +13,6 @@ from copy import deepcopy
 from pyeda.inter import expr
 import re
 
-#from time import time
-
 class ComputeModel:
     def __init__(self, path_to_model: str):
 
@@ -125,9 +123,9 @@ class ComputeModel:
             if node in self.relationship:
                 subgraph_rel[node] = self.relationship[node]
 
-        start1 = time()
+    
         all_paths = self.__get_all_paths(subgraph_rel, outputs)
-        start2 = time()
+
         all_cnvrt_paths = []
         path_operations_sets = []
         for path in all_paths:
@@ -139,11 +137,7 @@ class ComputeModel:
         
             characts = self.__get_path_characteristics(path_copy)
             nodes, edges = self.cvrt_to_graph(path)
-            all_cnvrt_paths.append({"nodes": nodes, "edges": edges, "characts": characts})
-        start3 = time()
-
-        # print(f"t1 {start2 - start1}")
-        # print(f"t2 {start3 - start3}")      
+            all_cnvrt_paths.append({"nodes": nodes, "edges": edges, "characts": characts})     
 
         nodes, edges = self.cvrt_to_graph(subgraph_rel)
         return {"nodes": nodes, "edges": edges}, all_cnvrt_paths
