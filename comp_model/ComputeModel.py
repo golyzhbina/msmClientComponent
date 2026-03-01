@@ -130,7 +130,7 @@ class ComputeModel:
         path_operations_sets = []
         for path in all_paths:
             path_copy = self.delete_fictive_ops(path)
-           
+
             if set(path_copy.keys()) in path_operations_sets:
                 continue
             path_operations_sets.append(set(path_copy.keys()))
@@ -181,8 +181,13 @@ class ComputeModel:
     
     def __get_paths_from_dnf(self, dnf: str, map_fomula_names: Dict[str, str], outputs: List[str]):
 
-        regexpr = r"And\(([^)]+)\)"
-        paths = re.findall(regexpr, dnf)
+        if not ("And" in dnf) and not ("Or" in dnf):
+            paths = [dnf]
+        elif not ("And" in dnf) and  ("Or" in dnf):
+            paths = [dnf[3:-1]]
+        else:
+            regexpr = r"And\(([^)]+)\)"
+            paths = re.findall(regexpr, dnf)
 
         paths = [v.split(", ") for v in paths]
         paths = [[map_fomula_names[v] for v in path] for path in paths]
@@ -220,6 +225,7 @@ class ComputeModel:
                 reversed_relations[var]["output from"].append(op)
 
         knf, map_formula_names = self.__build_knf(outputs, subgraph, reversed_relations)
+        
         dnf = str(knf.to_dnf())
         paths = self.__get_paths_from_dnf(dnf, map_formula_names, outputs)
             
