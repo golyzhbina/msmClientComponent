@@ -127,15 +127,8 @@ class ComputeModel:
         all_paths = self.__get_all_paths(subgraph_rel, outputs)
 
         all_cnvrt_paths = []
-        path_operations_sets = []
         for path in all_paths:
-            path_copy = self.delete_fictive_ops(path)
-
-            if set(path_copy.keys()) in path_operations_sets:
-                continue
-            path_operations_sets.append(set(path_copy.keys()))
-        
-            characts = self.__get_path_characteristics(path_copy)
+            characts = self.__get_path_characteristics(path)
             nodes, edges = self.cvrt_to_graph(path)
             all_cnvrt_paths.append({"nodes": nodes, "edges": edges, "characts": characts})     
 
@@ -263,6 +256,36 @@ class ComputeModel:
                 edges.append({"from": op, "to": var})
         return nodes, edges
     
+    def cvrt_to_relations(self, nodes, edges): 
+        relationship = {}
+
+        for node, tpe in nodes.items():
+            if tpe  in ["operation", "fictiveOperation"]:
+                relationship[node] = [[], []]
+        
+        for edge in edges:
+            
+            if nodes[edge["to"]] in ["operation", "fictiveOperation"]:
+                relationship[edge["to"]][0].append(edge["from"])
+            else:
+                relationship[edge["from"]][1].append(edge["to"])
+        return relationship
+    
+    def get_reversed_relations(self, relations):
+        reversed_rel = {}
+
+        for op in relations:
+            for var in relations[op][0] + relations[op][1]:
+                reversed_rel[var] = {"input_to": [], "output_from": []}
+        
+        for op in  relations:
+            for var in relations[op][0]:
+                reversed_rel[var]["input_to"].append(op)
+
+            for var in relations[op][1]:
+                reversed_rel[var]["output_from"].append(op)
+        return reversed_rel
+    
     def get_graph(self):
         return self.cvrt_to_graph(self.relationship)
 
@@ -285,6 +308,41 @@ class ComputeModel:
                 if var_name in replace_map:
                     graph_copy[op_name][1][i] = replace_map[var_name]
         return graph_copy
+    
+    def clear_paths_filtration(self, outputs: List[str], subgraph: dict, paths: List[dict]):
+
+        subgraph_rel = self.cvrt_to_relations(subgraph["nodes"], subgraph["edges"])
+        subgraph_rev_rel = self.get_reversed_relations(subgraph_rel)
+
+        is_end_node_in_sg = {}
+        for out_var in outputs:
+            is_end_node_in_sg[out_var] = False
+
+            if not len(subgraph_rev_rel[out_var]["input_to"]):
+                is_end_node_in_sg[out_var] = True
+
+        use_paths_id = [i for i in range(len(paths))]
+        for i, path in enumerate(paths):
+            relations = self.cvrt_to_relations(path["nodes"], path["edges"])
+            reversed_relations = self.get_reversed_relations(relations)
+
+            is_end_node = {}
+            for out_var in outputs:
+                is_end_node[out_var] = False
+                if not len(reversed_relations[out_var]["input_to"]):
+                    is_end_node[out_var] = True
+
+            for out_var in outputs:
+                if is_end_node[out_var] and not is_end_node_in_sg[out_var]:
+                    use_paths_id.remove(i)
+                    break
+
+        return use_paths_id
+
+
+
+
+
         
 
         
