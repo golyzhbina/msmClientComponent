@@ -151,7 +151,8 @@ class WorkflowGenerator(Generator):
     def get_common_params():
         
         return [
-            {"name" : "path",
+            {
+                "name" : "path",
                 "type": "str",
                 "description" : "path to decalration and app file"
             },
