@@ -55,43 +55,43 @@ class DAGGenerator(Generator):
 
     @staticmethod
     def get_common_params():
-        return {
-                "path" : {
+        return [
+                [{"path" : {
                     "type": "str",
                     "description" : "path to airflow dags"
-                },
+                }}],
 
-                "YAML file name" : {
+                [{"YAML file name" : {
                     "type" : "str"
-                },
+                }}],
 
-                "dag_id" : {
+                [{"dag_id" : {
                     "type" : "str"
-                },
+                }}],
 
-                "out_dir": {
+                [{"out_dir": {
                     "type" : "str",
                     "description" :  "path to out files"
-                },
+                }}],
 
-                "schedule_interval" : {
+                [{"schedule_interval" : {
                     "type" : "str",
                     "default" : "@once"
-                },  
+                }}],  
 
-                "owner" : {
+                [{"owner" : {
                     "type" : "str",
                     "default" : "airflow"
-                }, 
+                }}], 
 
-                "start_date" : {
+                [{"start_date" : {
                     "type" : "str",
                     "default" : "2023-01-01",
                     "description" : "format: yyyy-mm-dd"
-                }, 
+                }}], 
 
-                "tags" : {
+                [{"tags" : {
                     "type" : "List[str]",
                     "descrtption" : "еnter tags separated by commas"
-                }
-            }
+                }}]
+            ]
