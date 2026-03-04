@@ -53,6 +53,7 @@ class DAGGenerator(Generator):
         with open(filename, "w") as f:
             yaml.dump(dag, f, OrderedDumper, default_flow_style=False, allow_unicode=True)
 
+    @staticmethod
     def get_common_params():
         return {
                 "path" : {
@@ -77,7 +78,7 @@ class DAGGenerator(Generator):
                     "type" : "str",
                     "default" : "@once"
                 },  
-                
+
                 "owner" : {
                     "type" : "str",
                     "default" : "airflow"

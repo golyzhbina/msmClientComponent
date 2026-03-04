@@ -147,6 +147,7 @@ class WorkflowGenerator(Generator):
         with open(path_to_app / "map_vars_file.json", "w") as map_vars_file:
             json.dump(unique_variables_map, map_vars_file)
 
+    @staticmethod
     def get_common_params():
         
         return {
