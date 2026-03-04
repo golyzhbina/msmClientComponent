@@ -53,3 +53,39 @@ class DAGGenerator(Generator):
         with open(filename, "w") as f:
             yaml.dump(dag, f, OrderedDumper, default_flow_style=False, allow_unicode=True)
 
+    def get_common_params():
+        return {
+                "path" : {
+                    "type": "str",
+                    "description" : "path to airflow dags"
+                },
+
+                "YAML file name" : {
+                    "type" : "str"
+                },
+
+                "dag_id" : {
+                    "type" : "str"
+                },
+
+                "out_dir": {
+                    "type" : "str",
+                    "description" :  "path to out files"
+                },
+
+                "schedule_interval" : {
+                    "type" : "str",
+                    "default" : "@once"
+                },  
+                
+                "owner" : {
+                    "type" : "str",
+                    "default" : "airflow"
+                }, 
+
+                "start_date" : {
+                    "type" : "str",
+                    "default" : "2023-01-01",
+                    "description" : "format: yyyy-mm-dd"
+                }
+            }

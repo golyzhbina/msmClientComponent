@@ -46,7 +46,7 @@ class WorkflowGenerator(Generator):
                     map_cm_vars_to_ops_vars[op][data.get("name")] = self.__get_toml_name(op, var)
 
             for var in self.subgraph[op][1]:
-                map_cm_vars_to_ops_vars[op][var] = self.__get_toml_name(op, var)
+                map_cm_vars_to_ops_vars[op][var] = self.__get_toml_name(op, "out")
 
         for var, descr in self.variables.items():
             
@@ -146,3 +146,68 @@ class WorkflowGenerator(Generator):
         
         with open(path_to_app / "map_vars_file.json", "w") as map_vars_file:
             json.dump(unique_variables_map, map_vars_file)
+
+    def get_common_params():
+        
+        return {
+            "path" : {
+                "type": "str",
+                "description" : "path to decalration and app file"
+            },
+
+            "name" : {
+                "type": "str",
+                "description" : "name of workflow"
+            },
+
+            "username" : {
+                "type": "str",
+                "description" : ""
+            },
+
+            "experiments_number" : {
+                "type": "int",
+                "description" : "number of threads"
+            },
+
+            "remote.name" : {
+                "type": "str",
+                "description" : "name of remote user"
+            },
+
+            "remote.type" : {
+                "type": "str",
+                "default" : "ssh",
+                "description" : "support only ssh"
+            },
+
+            "remote.workload_manager" : {
+                "type": "str",
+                "default" : "execucore",
+                "description" : 'type of workload manager, maybe "execucore" or "slurm"'
+            },
+
+            "remote.config_path" : {
+                "type": "str",
+                "default" : "~/.ssh/config",
+                "description" : ''
+            },
+
+            "hardware_requirements.nodes_limit" : {
+                "type": "int"
+            },
+
+            "hardware_requirements.cpu_limit" : {
+                "type": "int"
+            },
+
+            "hardware_requirements.memory_limit" : {
+                "type": "str",
+                "description": 'need memory on each nodes, format: <volume>[M|G|T]'
+            },
+
+            "hardware_requirements.time_limit" : {
+                "type": "str",
+                "description": 'format: dd-hh:mm:ss'
+            }
+        }
