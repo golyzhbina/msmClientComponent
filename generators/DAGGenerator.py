@@ -88,5 +88,10 @@ class DAGGenerator(Generator):
                     "type" : "str",
                     "default" : "2023-01-01",
                     "description" : "format: yyyy-mm-dd"
+                }, 
+
+                "tags" : {
+                    "type" : "List[str]",
+                    "descrtption" : "еnter tags separated by commas"
                 }
             }
