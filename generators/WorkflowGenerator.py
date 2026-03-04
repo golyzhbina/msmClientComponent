@@ -151,64 +151,75 @@ class WorkflowGenerator(Generator):
     def get_common_params():
         
         return [
-            [{"path" : {
+            {"name" : "path",
                 "type": "str",
                 "description" : "path to decalration and app file"
-            }}],
+            },
 
-            [{"name" : {
+            {
+                "name" : "name",
                 "type": "str",
                 "description" : "name of workflow"
-            }}],
+            },
 
-            [{"username" : {
+            {
+                "name" : "username",
                 "type": "str",
                 "description" : ""
-            }}],
+            },
 
-            [{"experiments_number" : {
+            {
+                "name" : "experiments_number",
                 "type": "int",
                 "description" : "number of threads"
-            }}],
+            },
 
-            [{"remote.name" : {
+            {   
+                "name" : "remote.name",
                 "type": "str",
                 "description" : "name of remote user"
-            }}],
+            },
 
-            [{"remote.type" : {
+            { 
+                "name" : "remote.type",
                 "type": "str",
                 "default" : "ssh",
                 "description" : "support only ssh"
-            }}],
+            },
 
-            [{"remote.workload_manager" : {
+            {
+                "name" : "remote.workload_manager",
                 "type": "str",
                 "default" : "execucore",
                 "description" : 'type of workload manager, maybe "execucore" or "slurm"'
-            }}],
+            },
 
-            [{"remote.config_path" : {
+            {
+                "name" : "remote.config_path",
                 "type": "str",
                 "default" : "~/.ssh/config",
                 "description" : ''
-            }}],
+            },
 
-            [{"hardware_requirements.nodes_limit" : {
+            {
+                "name" : "hardware_requirements.nodes_limit",
                 "type": "int"
-            }}],
+            },
 
-            [{"hardware_requirements.cpu_limit" : {
+            {
+                "name" : "hardware_requirements.cpu_limit",
                 "type": "int"
-            }}],
+            },
 
-            [{"hardware_requirements.memory_limit" : {
+            {
+                "name" : "hardware_requirements.memory_limit",
                 "type": "str",
                 "description": 'need memory on each nodes, format: <volume>[M|G|T]'
-            }}],
+            },
 
-            [{"hardware_requirements.time_limit" : {
+            {
+                "name" :"hardware_requirements.time_limit",
                 "type": "str",
                 "description": 'format: dd-hh:mm:ss'
-            }}]
+            }
         ]
