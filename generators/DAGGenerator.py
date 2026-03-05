@@ -44,11 +44,12 @@ class DAGGenerator(Generator):
             dag[dag_id]["tasks"][op]["decorator"] = "airflow.decorators.task"
             dag[dag_id]["tasks"][op]["python_callable"] = self.map_cm_to_code[op]["func_path"]
             for var in self.map_cm_to_code[op]["variables"]:
-                if var in inputs[op]:
-                    dag[dag_id]["tasks"][op][var] = inputs[op][var]
+                map_name = self.map_cm_to_code[op]["variables"][var].get("name", var)
+                if map_name in inputs.get(op, {}):
+                    dag[dag_id]["tasks"][op][var] = inputs[op][map_name]
                 else:
-                    map_name = self.map_cm_to_code[op]["variables"][var]["name"]
                     dag[dag_id]["tasks"][op][var] = "+" + self.variables[map_name]["output_from"][0]
+
 
         with open(filename, "w") as f:
             yaml.dump(dag, f, OrderedDumper, default_flow_style=False, allow_unicode=True)

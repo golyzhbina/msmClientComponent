@@ -76,8 +76,8 @@ class ComputeModel:
                 return (False, f"При данных входных переменных выходная переменная {var} недостижима")
         return (True, "")
     
-    def get_ordered_subgraph(self, nodes: Dict[str, str], edges: Dict[str, str]):
-        operations = list(filter(lambda x: x in self.relationship, nodes))
+    def get_ordered_subgraph(self, graph_rel: dict):
+        operations = list(filter(lambda x: x in self.relationship, graph_rel.keys()))
     
         execution_order = []
         visited = set()
@@ -96,18 +96,12 @@ class ComputeModel:
         for op in operations:
             visit(op)
     
-        ordered_subgraph = OrderedDict()
+        ordered_graph = OrderedDict()
 
         for op in execution_order:
-            ordered_subgraph[op] = [[], []]
+            ordered_graph[op] = graph_rel[op]
 
-        for edge in edges:
-            if edge["from"] in self.relationship:
-                ordered_subgraph[edge["from"]][-1].append(edge["to"])
-            if edge["to"] in self.relationship:
-                ordered_subgraph[edge["to"]][0].append(edge["from"])
-
-        return ordered_subgraph
+        return ordered_graph
     
     def get_paths(self, inputs: List[str], outputs: List[str]) -> OrderedDict:
 
@@ -232,8 +226,11 @@ class ComputeModel:
         
         for node in path:
             if type(self.nodes[node]) == Operation:
-                for name, value in self.nodes[node]._characters.items():
-                    characts[name] += value 
+                for charact in self.characteristics:
+                    characts[charact] += \
+                        self.nodes[node]._characters \
+                        .get(charact, self.characteristics[charact].default)
+       
 
         return characts
 
