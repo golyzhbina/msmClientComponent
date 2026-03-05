@@ -34,10 +34,11 @@ class Generator:
             map_info = self.map_cm_to_code[op]
             for v_name, v_info in map_info["variables"].items():
                 map_name = v_info.get("name", None)
-                var_id = map_name if map_name else v_name
 
-                if var_id  in added_vars:
+                if map_name  in added_vars:
                     continue
+
+                var_id = map_name if map_name else v_name
 
                 if map_name in self.variables and \
                    len(self.variables[map_name]["output_from"]) == 0  or \
