@@ -46,7 +46,7 @@ class WorkflowGenerator(Generator):
                     map_cm_vars_to_ops_vars[op][data.get("name")] = self.__get_toml_name(op, var)
 
             for var in self.subgraph[op][1]:
-                map_cm_vars_to_ops_vars[op][var] = self.__get_toml_name(op, "out")
+                map_cm_vars_to_ops_vars[op][var] = self.__get_toml_name(op, var)
 
         for var, descr in self.variables.items():
             
