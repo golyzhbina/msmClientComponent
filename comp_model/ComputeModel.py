@@ -336,6 +336,8 @@ class ComputeModel:
 
         return use_paths_id
 
+    def get_characts(self):
+        return list(self.characteristics.keys())
 
 
 
