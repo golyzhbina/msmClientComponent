@@ -158,6 +158,12 @@ class WorkflowGenerator(Generator):
             },
 
             {
+                "name" : "domain",
+                "type": "str",
+                "description" : ""
+            },
+
+            {
                 "name" : "name",
                 "type": "str",
                 "description" : "name of workflow"

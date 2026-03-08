@@ -1,0 +1,440 @@
+load_veldata:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/load_veldata/declaration.toml"
+  ops_path: load_veldata 
+  description: "reads a one-dimensional NPY-array of velocities and create regular array of depths from -len(vel) * step to 0 with specifed step"
+  variables:
+    veldata_path:
+      name: "veldata_path"
+      description: "path to npy-array with speeds and depths"
+      type: "str"
+    sstep_by_depthsp:
+      description: "step by depths"
+      type: "i32"
+    
+read_recs:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/read_recs/declaration.toml"
+  ops_path: read_recs
+  description: "read receivers coordinates"
+  variables:
+    rc_data_path:
+      name: "rec_coords_path"
+      description: ""
+      type: "str"
+
+get_coords_on_net:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_coords_on_net/declaration.toml"
+  ops_path: get_coords_on_net
+  variables:
+    rec_coords_path:
+      name: "rec_coords"
+      description: "path to receivers coords object"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+
+create_region:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/create_region/declaration.toml"
+  ops_path: create_region
+  variables:
+    net_coords: 
+      name: "region_coords"
+      type: "[i32]"
+      description: "list of four elements - grid coordinates [X1, Y1, X2, Y2]"
+    step_by_region:
+      type: "i32"
+
+get_velmodel:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_velmodel/declaration.toml"
+  ops_path: get_velmodel
+  variables:
+    depths_vel_path:
+      name: "veldata"
+      description: "path to veldata object"
+      type: "str"
+    rec_coords_path:
+      type: "str"
+      name: "rec_coords"
+      description: "path to receivers coords object"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+    step_vel_model: 
+      type: "i32"
+
+solve_eikonal:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/solve_eikonal/declaration.toml"
+  ops_path: solve_eikonal
+  description: "solve eikonal equation"
+  variables:
+    model_path:
+      name: "model"
+      description: "path to vel model object"
+      type: "str"
+    source:
+      type: "i32"
+      description: "calibration explosion depth"
+
+get_travel_time:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_travel_time/declaration.toml"
+  ops_path: get_travel_time
+  description: "obtaining an array of travel times from each receiver to each source based on the solution of the eikonal equation"
+  variables:
+    esolve_path:
+      name: "esolve"
+      description: "path to eikonal solve object"
+      type: "str"
+    rec_coords_path:
+      type: "str"
+      name: "rec_coords_on_net"
+      description: "path to receivers coords object"
+    traces_dt: 
+      description: "trace sampling frequency in milliseconds"
+      type: "i32"
+
+read_traces:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/read_traces/declaration.toml"
+  ops_path: read_traces
+  description: ""
+  variables:
+    path_to_sgy:
+      name: "traces_path"
+      description: "path to SGY-file"
+      type: "str"
+    normalize:
+      type: "bool"
+      default: false
+      description: "if the value is True, then each trace is normalized to the maximum value"
+  expand: "filename"
+
+# preprocess_traces:
+#   func_path: "msm_dags_ops."
+#   description: "if the value is True, then each trace is normalized to the maximum value"
+#   variables:
+#     traces_path:
+#       name: "traces"
+#       type: "str"
+#       description: "path to traces obj"
+#     actions:
+#       type: "List[str]"
+#       description: "list of actions\nactions:\nfreq_filt - frequency filtering\nhilb_filt - Hilbert transform\nabs_filt - get absolute value of each sample of traces"
+#     merge_path: 
+#       type: "str"
+#       default: None
+#       description: "The path to the traces to load. If it is not None, then part_size of the samples of the loaded traces are loaded at the end of the source traces. If you are using cumulative summation with alignment, we recommend specifying part_size = kernel_size"
+#     part_size:
+#       type: "i32"
+#       default: None
+#       description: "number of samples to load"
+#     sc_path:
+#       type: "str"
+#       default: None
+#       description: "path to static corrections, if this parameter is specified, then static corrections are taken i32o account"
+#   expand: "traces_path"
+
+get_stat_corrs:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_stat_corrs/declaration.toml"
+  ops_path: get_stat_corrs
+  description: ""
+  variables:
+    traces_path: 
+      name: "traces_wo_sc"
+      type: "str"
+      description: "path to traces obj"
+    window_size:
+      type: "i32"
+      decription: "amount traces for calculate etalon"
+
+apply_stat_corrs:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/apply_stat_corrs/declaration.toml"
+  ops_path: apply_stat_corrs
+  func_path: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
+  description: ""
+  variables:
+    traces_path: 
+      name: "traces_wo_sc"
+      type: "str"
+      description: "path to traces obj"
+    stat_cors_path:
+      name: "stat_corrs"
+      type: "str"
+      description: "path to stat corrs obj"
+
+hilb_filtration:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/hilb_filtration/declaration.toml"
+  ops_path: traces_hilb_filtration
+  description: ""
+  variables:
+    traces_path:
+      name: "traces_class"
+      type: "str"
+      description: "path to traces obj"
+  expand: "traces_path"
+
+abs_filtration:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/abs_filtration/declaration.toml"
+  ops_path: traces_abs_filtration
+  description: ""
+  variables:
+    traces_path:
+      name: "traces_class"
+      type: "str"
+      description: "path to traces obj"
+  expand: "traces_path"
+
+frequency_filtration:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/frequency_filtration/declaration.toml"
+  ops_path: traces_frequency_filtration
+  description: ""
+  variables:
+    traces_path:
+      name: "traces_class"
+      type: "str"
+      description: "path to traces obj"
+  expand: "traces_path"
+
+merge_traces:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/merge_traces/declaration.toml"
+  ops_path: traces_merge_traces
+  description: ""
+  variables:
+    traces1_path:
+      name: "traces"
+      type: "str"
+      description: "path to main traces obj"
+    traces2_path:
+      type: "str"
+      description: "path to additional traces obj"
+    part_size:
+      type: "i32"
+      description: "number of loaded traces"
+
+get_cube:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_cube/declaration.toml"
+  ops_path: get_cube
+  description: "coherent summation"
+  variables:
+    traces_path:
+      name: "ftraces"
+      description: "path to filtered traces object"
+      type: "str"
+    travel_time_path:
+      name: "travel_time"
+      description: "path to travel time object"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+    time_i32erval:
+      type: "[i32]"
+      description: "summation time i32erval"
+  expand: traces_path
+
+get_cube_with_tensor:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_cube_with_tensor/declaration.toml"
+  ops_path: get_cube_with_tensor
+  description: "coherent summation with tensor moment"
+  variables:
+    traces_path:
+      type: "str"
+      name: "ftraces"
+      description: ""
+    travel_time_path:
+      name: "travel_time"
+      description: ""
+      type: str
+    region_path:
+      name: "region"
+      description: ""
+      type: str
+    tensor_path:
+      name: "tensor"
+      description: ""
+      type: str
+
+get_cumsum:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_cumsum/declaration.toml"
+  ops_path: get_cumsum
+  description: "cumulative summation with a window of kernel_size"
+  variables:
+    cube_path:
+      name: "cube_wo_cumsum"
+      type: "str"
+      description: "path to cube object"
+    kernel_size:
+      type: "i32"
+      description: ""
+    zero_padding:
+      type: bool
+      default: false
+      description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
+
+get_slice:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_slice/declaration.toml"
+  ops_path: get_slice
+  description: "constructs slices of a cube by time at its maxima"
+  variables:
+    cube_path:
+      name: "cube"
+      description: "path to cube obj"
+      type: "str"
+    maxes_path:
+      name: "maxes"
+      description: "path to maxes obj"
+      type: "str"
+    region_path:
+      name: "region"
+      description: "path to region obj"
+      type: "str"
+    rec_coords_on_net_path:
+      name: "rec_coords_on_net"
+      description: "path to receivers coords obj"
+      type: "str"
+
+get_df:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_df/declaration.toml"
+  ops_path: get_df
+  description: "obtains maximum cube values ​​along the time axis"
+  variables:
+    cube_path:
+      name: "cube"
+      description: "path to cube object"
+      type: str
+  expand: cube_path
+
+# get_df_geo:
+#   func_path: "msm_dags_ops."
+#   description: ""
+#   variables:
+#     cube_path:
+#       name: "cube"
+#       description: ""
+
+plot_df:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/plot_df/declaration.toml"
+  ops_path: plot_df
+  description: "plot detect func"
+  variables:
+    df_path:
+      name: "df"
+      description: "path to detect func object"
+      type: "str"
+    thresh_hold:
+      type: "float"
+      description: "maximum threshold value"
+  expand: df_path
+
+get_maxes:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/get_maxes/declaration.toml"
+  ops_path: get_maxes
+  description: ""
+  variables:
+    cube_path:
+      name: "cube"
+      description: ""
+      type: "str"
+    df_path:
+      name: "df"
+      description: ""
+      type: "str"
+    region_path:
+      name: "region"
+      description: ""
+      type: "str"
+
+draw_maxes_at_df:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/draw_maxes_at_df/declaration.toml"
+  ops_path: draw_maxes_at_df
+  description: ""
+  variables:
+    maxes_path:
+      name: "maxes"
+      description: "path ot maxes object"
+      type: "str"
+    df_path:
+      name: "df"
+      description: "path to df object"
+      type: str
+
+draw_tt_at_traces:
+  type: "map"
+  declaration_url: "file://localhost/$PWD/ops/draw_tt_at_traces/declaration.toml"
+  ops_path: draw_tt_at_traces
+  description: ""
+  variables:
+    maxes_path:
+      name: "maxes"
+      description: "path to maxes object"
+      type: str
+    traces_path:
+      name: "ftraces"
+      type: str
+      description: "path to traces object"
+    tt_path:
+      name: "travel_time"
+      description: "parh to travel time object"
+      type: str
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+    radius:
+      type: "i32"
+      description: "maximum highlight radius on the traces"
+    vmin:
+      type: "float"
+      description: "vmin of plt.imshow()"
+      default: None
+    vmax:
+      type: "float"
+      description: "vmax of plt.imshow()"
+      default: None
+
+    
+draw_maxes_at_timeline:
+  type: "reduce"
+  declaration_url: "file://localhost/$PWD/ops/draw_maxes_at_timeline/declaration.toml"
+  ops_path: draw_maxes_at_timeline
+  description: "plot maxes at timeline"
+  variables:
+    maxes_list_path:
+      type: "str"
+      name: "maxes"
+      description: "path to maxes object"
+
+draw_maxes_at_square:
+  type: "reduce"
+  declaration_url: "file://localhost/$PWD/ops/draw_maxes_at_square/declaration.toml"
+  ops_path: draw_maxes_at_square
+  description: "plot maxes at source region"
+  variables:
+    maxes_list_path:
+      type: "str"
+      name: "maxes"
+      description: "path to maxes object"
