@@ -177,9 +177,11 @@ class ComputeModel:
             paths = re.findall(regexpr, dnf)
 
         paths = [v.split(", ") for v in paths]
+        
         paths = [[map_fomula_names[v] for v in path] for path in paths]
 
         path_rels = []
+        unique_paths = []
         for path in paths:
             path_rel = {}
             r_set =  set(path)
@@ -193,6 +195,12 @@ class ComputeModel:
 
             for node in unneed_nodes:
                 del path_rel[node]
+
+            unique_ops = set(path_rel.keys())
+            if unique_ops in unique_paths:
+                continue
+
+            unique_paths.append(unique_ops)
             path_rels.append(path_rel)
 
         return path_rels
@@ -214,9 +222,7 @@ class ComputeModel:
         knf, map_formula_names = self.__build_knf(outputs, subgraph, reversed_relations)
         
         dnf = str(knf.to_dnf())
-        paths = self.__get_paths_from_dnf(dnf, map_formula_names, outputs)
-            
-
+        paths = self.__get_paths_from_dnf(dnf, map_formula_names, outputs)           
         return paths
     
     def __get_path_characteristics(self, path: Dict[str, str]):
