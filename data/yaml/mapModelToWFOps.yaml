@@ -191,7 +191,7 @@ merge_traces:
   description: ""
   variables:
     traces1_path:
-      name: "traces"
+      name: "raw_traces"
       type: "str"
       description: "path to main traces obj"
     traces2_path:

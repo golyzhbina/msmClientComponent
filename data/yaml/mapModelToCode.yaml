@@ -159,11 +159,11 @@ frequency_filtration:
   expand: "traces_path"
 
 merge_traces:
-  func_path: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_helper"
+  func_path: "msm_dags_ops.traces_ops_wrappers.merge_traces_helper"
   description: ""
   variables:
     traces1_path:
-      name: "traces"
+      name: "raw_traces"
       type: "str"
       description: "path to main traces obj"
     traces2_path:
