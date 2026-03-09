@@ -22,12 +22,12 @@ graph:
     region:
       class:
         - region
-    model:
+    velmodel:
       class:
-        - model
-    esolve:
+        - velmodel
+    eikonal_solve:
       class:
-        - esolve
+        - eikonal_solve
     rec_coords_on_net:
       class:
         - rec_coords_on_net
@@ -37,69 +37,69 @@ graph:
     traces_path:
       class:
         - traces_path
-    traces:
+    raw_traces:
       class:
-        - traces_class
+        - traces
     merged_traces:
       class:
-        - traces_class
-        - traces_wo_sc
+        - traces
+        - traces_without_stat_corrs
     freq_traces:
       class:
-        - ftraces
-        - traces_wo_sc
+        - filtered_traces
+        - traces_without_stat_corrs
     abs_traces:
       class:
-        - ftraces
-        - traces_wo_sc
+        - filtered_traces
+        - traces_without_stat_corrs
     hilb_traces:
       class:
-        - ftraces
-        - traces_wo_sc
+        - filtered_traces
+        - traces_without_stat_corrs
     stat_corrs:
       class:
        - stat_corrs
     traces_with_sc:
       class:
-        - ftraces
+        - filtered_traces
     tensor:
       class:
         - tensor
-    cube_wo_tm:
+    cube_without_tensor_moment:
       class:
-        - cube_wo_cumsum
+        - cube_without_cumsum
         - cube
-    cube_with_tm:
+    cube_with_tensor_moment:
       class:
-        - cube_wo_cumsum
+        - cube_without_cumsum
         - cube
-    cumsum_cube:
+    cube_with_cumsum:
       class:
         - cube 
-    df:
+    detect_function:
       class:
-        - df
+        - detect_function
     maxes:
       class:
         - maxes
     slices:
       class:
         - slices
-    gr_df:
+    chart_detect_function:
       class:
-        - gr_df
-    gr_tt_at_traces:
+        - chart_detect_function
+    chart_tt_at_traces:
       class:
-        - gr_tt_at_traces
-    gr_max_at_df:
+        - chart_tt_at_traces
+    chart_max_at_detect_function:
       class:
-        - gr_max_at_df
-    maxes_at_timeline:
+        - chart_max_at_detect_function
+    chart_maxes_at_timeline:
       class:
-        - maxes_at_timeline
-    maxes_at_square:
+        - chart_maxes_at_timeline
+    chart_maxes_at_square:
       class:
-        - maxes_at_square
+        - chart_maxes_at_square
 
   operations:
     load_veldata:
@@ -120,7 +120,7 @@ graph:
         region: name
         rec_coords: name
       outputs:
-        - model
+        - velmodel
     
     read_recs:
       class: read_recs
@@ -155,16 +155,16 @@ graph:
       characters:
         diff: 1
       inputs:
-        model: name
+        velmodel: name
       outputs:
-        - esolve
+        - eikonal_solve
     
     get_travel_time:
       class: get_travel_time
       characters:
         diff: 1
       inputs:
-        esolve: name
+        eikonal_solve: name
         rec_coords_on_net: name
       outputs:
         - travel_time
@@ -176,14 +176,14 @@ graph:
       inputs:
         traces_path: name
       outputs:
-        - traces
+        - raw_traces
 
     merge_traces:
       class: merge_traces
       characters:
         diff: 1
       inputs:
-        traces: name
+        raw_traces: name
       outputs:
         - merged_traces
     
@@ -192,7 +192,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces_class: class
+        traces: class
       outputs:
         - freq_traces
       
@@ -201,7 +201,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces_class: class
+        traces: class
       outputs:
         - abs_traces
 
@@ -210,7 +210,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces_class: class
+        traces: class
       outputs:
         - hilb_traces
 
@@ -219,7 +219,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces_wo_sc: class
+        traces_without_stat_corrs: class
       outputs:
         - stat_corrs
       
@@ -230,7 +230,7 @@ graph:
         diff: 1
       inputs:
         stat_corrs: name
-        traces_wo_sc: class
+        traces_without_stat_corrs: class
       outputs:
         - traces_with_sc
 
@@ -240,10 +240,10 @@ graph:
         diff: 1
       inputs:
         travel_time: name
-        ftraces: class
+        filtered_traces: class
         region: name
       outputs:
-        - cube_wo_tm
+        - cube_without_tensor_moment
     
     get_cube_with_tensor:
       class: get_cube_with_tensor
@@ -251,29 +251,29 @@ graph:
         diff: 1
       inputs:
         travel_time: name
-        ftraces: class
+        filtered_traces: class
         region: name
         tensor: name
       outputs:
-        - cube_with_tm
+        - cube_with_tensor_moment
     
     get_cumsum:
       class: get_cumsum
       characters:
         diff: 1
       inputs:
-        cube_wo_cumsum: class
+        cube_without_cumsum: class
       outputs:
-       - cumsum_cube
+       - cube_with_cumsum
     
-    get_df:
-      class: get_df
+    get_detect_function:
+      class: get_detect_function
       characters:
         diff: 1
       inputs:
         cube: class
       outputs:
-        - df
+        - detect_function
     
     get_maxes:
       class: get_maxes
@@ -281,7 +281,7 @@ graph:
         diff: 1
       inputs:
         cube: name
-        df: name
+        detect_function: name
         region: name
       outputs:
         - maxes
@@ -298,14 +298,14 @@ graph:
       outputs:
         - slices
     
-    plot_df:
-      class: plot_df
+    plot_detect_function:
+      class: plot_detect_function
       characters:
         diff: 1
       inputs:
-        df: name
+        detect_function: name
       outputs:
-        - gr_df
+        - chart_detect_function
     
     draw_tt_at_traces:
       class: draw_tt_at_traces
@@ -313,19 +313,19 @@ graph:
         diff: 1
       inputs:
         maxes: name
-        ftraces: class
+        filtered_traces: class
       outputs:
-        - gr_tt_at_traces
+        - chart_tt_at_traces
     
-    draw_maxes_at_df:
-      class: draw_maxes_at_df
+    draw_maxes_at_detect_function:
+      class: draw_maxes_at_detect_function
       characters:
         diff: 1
       inputs:
-        df: name
+        detect_function: name
         maxes: name
       outputs:
-        - gr_max_at_df
+        - chart_max_at_detect_function
     
     draw_maxes_at_timeline:
       class: draw_all_maxes_at_timeline
@@ -334,7 +334,7 @@ graph:
       inputs:
         maxes: name
       outputs:
-        - maxes_at_timeline
+        - chart_maxes_at_timeline
     
     draw_maxes_at_square:
       class: draw_all_maxes_at_square
@@ -343,7 +343,7 @@ graph:
       inputs:
         maxes: name
       outputs:
-        - maxes_at_square
+        - chart_maxes_at_square
 
         
 

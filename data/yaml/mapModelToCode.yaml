@@ -67,7 +67,7 @@ solve_eikonal:
   description: "solve eikonal equation"
   variables:
     model_path:
-      name: "model"
+      name: "velmodel"
       description: "path to vel model object"
       type: "str"
     source:
@@ -79,7 +79,7 @@ get_travel_time:
   description: "obtaining an array of travel times from each receiver to each source based on the solution of the eikonal equation"
   variables:
     esolve_path:
-      name: "esolve"
+      name: "eikonal_solve"
       description: "path to eikonal solve object"
       type: "str"
     rec_coords_path:
@@ -103,37 +103,12 @@ read_traces:
       description: "if the value is True, then each trace is normalized to the maximum value"
   expand: "filename"
 
-# preprocess_traces:
-#   func_path: "msm_dags_ops."
-#   description: "if the value is True, then each trace is normalized to the maximum value"
-#   variables:
-#     traces_path:
-#       name: "traces"
-#       type: "str"
-#       description: "path to traces obj"
-#     actions:
-#       type: "List[str]"
-#       description: "list of actions\nactions:\nfreq_filt - frequency filtering\nhilb_filt - Hilbert transform\nabs_filt - get absolute value of each sample of traces"
-#     merge_path: 
-#       type: "str"
-#       default: None
-#       description: "The path to the traces to load. If it is not None, then part_size of the samples of the loaded traces are loaded at the end of the source traces. If you are using cumulative summation with alignment, we recommend specifying part_size = kernel_size"
-#     part_size:
-#       type: "int"
-#       default: None
-#       description: "number of samples to load"
-#     sc_path:
-#       type: "str"
-#       default: None
-#       description: "path to static corrections, if this parameter is specified, then static corrections are taken into account"
-#   expand: "traces_path"
-
 get_stat_corrs:
   func_path: "msm_dags_ops.stat_cors_wrappers.get_stats_helper"
   description: ""
   variables:
     traces_path: 
-      name: "traces_wo_sc"
+      name: "traces_without_stat_corrs"
       type: "str"
       description: "path to traces obj"
     window_size:
@@ -145,7 +120,7 @@ apply_stat_corrs:
   description: ""
   variables:
     traces_path: 
-      name: "traces_wo_sc"
+      name: "traces_without_stat_corrs"
       type: "str"
       description: "path to traces obj"
     stat_cors_path:
@@ -158,7 +133,7 @@ hilb_filtration:
   description: ""
   variables:
     traces_path:
-      name: "traces_class"
+      name: "traces"
       type: "str"
       description: "path to traces obj"
   expand: "traces_path"
@@ -168,7 +143,7 @@ abs_filtration:
   description: ""
   variables:
     traces_path:
-      name: "traces_class"
+      name: "traces"
       type: "str"
       description: "path to traces obj"
   expand: "traces_path"
@@ -178,7 +153,7 @@ frequency_filtration:
   description: ""
   variables:
     traces_path:
-      name: "traces_class"
+      name: "traces"
       type: "str"
       description: "path to traces obj"
   expand: "traces_path"
@@ -203,7 +178,7 @@ get_cube:
   description: "coherent summation"
   variables:
     traces_path:
-      name: "ftraces"
+      name: "filtered_traces"
       description: "path to filtered traces object"
       type: "str"
     travel_time_path:
@@ -224,7 +199,7 @@ get_cube_with_tensor:
   description: "coherent summation with tensor moment"
   variables:
     traces_path:
-      name: "ftraces"
+      name: "filtered_traces"
       description: ""
     travel_time_path:
       name: "travel_time"
@@ -241,7 +216,7 @@ get_cumsum:
   description: "cumulative summation with a window of kernel_size"
   variables:
     cube_path:
-      name: "cube_wo_cumsum"
+      name: "cube_without_cumsum"
       type: "str"
       description: "path to cube object"
     kernel_size:
@@ -296,7 +271,7 @@ plot_df:
   description: "plot detect func"
   variables:
     df_path:
-      name: "df"
+      name: "detect_function"
       description: "path to detect func object"
       type: "str"
     thresh_hold:
@@ -313,7 +288,7 @@ get_maxes:
       description: ""
       type: "str"
     df_path:
-      name: "df"
+      name: "detect_function"
       description: ""
       type: "str"
     region_path:
@@ -330,7 +305,7 @@ draw_maxes_at_df:
       description: "path ot maxes object"
       type: "str"
     df_path:
-      name: "df"
+      name: "detect_function"
       description: "path to df object"
       type: str
 
@@ -343,7 +318,7 @@ draw_tt_at_traces:
       description: "path to maxes object"
       type: str
     traces_path:
-      name: "ftraces"
+      name: "filtered_traces"
       type: str
       description: "path to traces object"
     tt_path:
