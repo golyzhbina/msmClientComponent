@@ -248,8 +248,8 @@ get_slice:
       description: "path to receivers coords obj"
       type: "str"
 
-get_df:
-  func_path: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
+get_detect_function:
+  func_path: "msm_dags_ops.result_interpret_wrappers.get_detect_function_helper"
   description: "obtains maximum cube values ​​along the time axis"
   variables:
     cube_path:
@@ -258,26 +258,18 @@ get_df:
       type: str
   expand: cube_path
 
-# get_df_geo:
-#   func_path: "msm_dags_ops."
-#   description: ""
-#   variables:
-#     cube_path:
-#       name: "cube"
-#       description: ""
-
-plot_df:
+plot_detect_function:
   func_path: "msm_dags_ops."
   description: "plot detect func"
   variables:
-    df_path:
+    detect_function_path:
       name: "detect_function"
       description: "path to detect func object"
       type: "str"
     thresh_hold:
       type: "float"
       description: "maximum threshold value"
-  expand: df_path
+  expand: detect_function_path
 
 get_maxes:
   func_path: "msm_dags_ops."
@@ -287,7 +279,7 @@ get_maxes:
       name: "cube"
       description: ""
       type: "str"
-    df_path:
+    detect_function_path:
       name: "detect_function"
       description: ""
       type: "str"
@@ -296,17 +288,17 @@ get_maxes:
       description: ""
       type: "str"
 
-draw_maxes_at_df:
-  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"
+draw_maxes_at_detect_function:
+  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_detect_function_helper"
   description: ""
   variables:
     maxes_path:
       name: "maxes"
       description: "path ot maxes object"
       type: "str"
-    df_path:
+    detect_function_path:
       name: "detect_function"
-      description: "path to df object"
+      description: "path to detect_function object"
       type: str
 
 draw_tt_at_traces:

@@ -34,7 +34,7 @@ class Generator:
             map_info = self.map_cm_to_code[op]
             for v_name, v_info in map_info["variables"].items():
                 map_name = v_info.get("name", None)
-                var_id = map_name if map_name else v_name
+                var_id = map_name
 
                 if var_id  in added_vars:
                     continue
@@ -42,6 +42,7 @@ class Generator:
                 if map_name in self.variables and \
                    len(self.variables[map_name]["output_from"]) == 0  or \
                    map_name not in self.variables:
+                    var_id = var_id if var_id else f"{op}_{v_name}"
                     inputs[op][v_name] = v_info
                     inputs[op][v_name].pop("name", None)
                     inputs[op][v_name]["id"] = var_id
@@ -51,7 +52,4 @@ class Generator:
     
     def get_operation_description(self, op_name): 
         return self.map_cm_to_code[op_name].get("description", "")
-    
-    # def get_declaration_file(filrname: str) -> None:
-    #     pass
     

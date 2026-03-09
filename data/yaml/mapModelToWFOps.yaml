@@ -300,20 +300,20 @@ get_detect_function:
       type: str
   expand: cube_path
 
-plot_df:
+plot_detect_function:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/plot_df/declaration.toml"
-  ops_path: plot_df
+  declaration_url: "file://localhost/$PWD/ops/plot_detect_function/declaration.toml"
+  ops_path: plot_detect_function
   description: "plot detect func"
   variables:
-    df_path:
+    detect_function_path:
       name: "detect_function"
       description: "path to detect func object"
       type: "str"
     thresh_hold:
       type: "float"
       description: "maximum threshold value"
-  expand: df_path
+  expand: detect_function_path
 
 get_maxes:
   type: "map"
