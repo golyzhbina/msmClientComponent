@@ -9,5 +9,3 @@ class Variable:
     # def __init__(self, name: str = None, var_class: str = None):
     #     self._name = name
     #     self._var_class = var_class
-
-    

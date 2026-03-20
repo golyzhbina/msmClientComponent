@@ -6,5 +6,3 @@ class Characteristic:
     name: str = None
     default: Union[int, float] = None
     
-        
-

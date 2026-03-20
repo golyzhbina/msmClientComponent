@@ -3,39 +3,58 @@ from .Variable import Variable
 from .Operation import Operation
 from .FictiveOperation import FictiveOperation
 from .Characteristic import Characteristic
-import yaml
+from logic_normal_forms import build_knf, parse_dnf
 
-
-from typing import Dict, Tuple, List, Union
+from typing import Dict, Tuple, List, Union, TypeAlias
 from collections import OrderedDict, deque
 from copy import deepcopy
+from enum import Enum
 
+import yaml
 from pyeda.inter import expr
 import re
 
+Variables: TypeAlias = List[str]
+
+class NodeType(Enum):
+    OPERATION = "operation"
+    VARIABLE = "variable"
+    FICTIVE_OPERATION = "fictiveOperation"
+
 class ComputeModel:
+
     def __init__(self, path_to_model: str):
 
         with open(path_to_model, "r") as f:
             model_dict = yaml.safe_load(f)
 
-        self.nodes: Dict[str, Union[Variable, Operation]] = dict()
-        self.relationship: Dict[str, Tuple] = dict()
-        self.__read_graph(model_dict["graph"])        
-        self.graph: Graph = Graph(self.relationship) 
-
-        self.characteristics: Dict[str, Characteristic] = dict()
+        # алиасы
+        self.characteristics: Dict[str, Characteristic] = \
         self.__read_characteristics(model_dict["operation_characteristics"])
 
-    def __read_characteristics(self, characters_dict: dict):
-        for charc_name, charc_info in characters_dict.items():
-            self.characteristics[charc_name] = Characteristic(charc_name, charc_info["default"])
+        self.relationship, self.nodes = self.__read_graph(model_dict["graph"])
 
-    def __read_graph(self, graph_dict: dict):
+        self.graph: Graph = Graph(self.relationship) 
+
+    def __get_fictive_operation_name(self, var_name, var_class):
+        return f"{var_name}_to_{var_class}"
+
+    def __read_characteristics(self, characters_dict: dict) -> Dict[str, Characteristic]:
+        return {charc_name : Characteristic(charc_name, charc_info["default"]) 
+                for charc_name, charc_info in characters_dict.items()}
+
+    def __read_graph(self, graph_dict: dict) -> Tuple[
+                                                    Dict[str, List[Variables]], 
+                                                    Dict[str, Union[Variable, Operation]]
+                                                ]:
+
+        relationship: Dict[str, List[Variables]] = dict()
+        nodes: Dict[str, Union[Variable, Operation]] = dict()
+
         var_classes: Dict[str, List[str]] = dict()
 
         for var_name, var_descr in graph_dict["variables"].items():
-            self.nodes[var_name] = Variable(var_name, var_descr["class"])
+            nodes[var_name] = Variable(var_name, var_descr["class"])
 
             for cl in var_descr["class"]:
                 if not (cl in var_classes):
@@ -45,7 +64,7 @@ class ComputeModel:
 
         for op_name, op_descr in graph_dict["operations"].items():
             op = Operation(op_name, op_descr["class"], op_descr["characters"])
-            self.nodes[op_name] = op
+            nodes[op_name] = op
 
             inputs = []
             for var_name, var_descr in op_descr["inputs"].items():
@@ -55,28 +74,31 @@ class ComputeModel:
             for var_name in op_descr["outputs"]:
                 outputs.append(var_name)
 
-            self.relationship[op_name] = [inputs, outputs]
+            relationship[op_name] = [inputs, outputs]
 
         
         for var_class, var_list in var_classes.items():
             if len(var_list) == 1 and var_list[0] != var_class:
-                
-                self.relationship[f"{var_list[0]}_to_{var_class}"] = [[var_list[0]], [var_class]]
-                self.nodes[f"{var_list[0]}_to_{var_class}"] = FictiveOperation(f"{var_list[0]}_to_{var_class}")
+                op_name = self.__get_fictive_operation_name(var_list[0], var_class)
+                relationship[op_name] = [[var_list[0]], [var_class]]
+                nodes[op_name] = FictiveOperation(op_name)
+            
             elif len(var_list) > 1:
-                
                 for var in var_list:
-                    self.relationship[f"{var}_to_{var_class}"] = [[var], [var_class]]  
-                    self.nodes[f"{var}_to_{var_class}"] = FictiveOperation(f"{var}_to_{var_class}")          
+                    op_name = self.__get_fictive_operation_name(var, var_class)
+                    relationship[op_name] = [[var], [var_class]]  
+                    nodes[op_name] = FictiveOperation(op_name)  
+
+        return relationship, nodes        
     
-    def is_reachable_from_inputs(self, graph: Graph, inputs: List[str], outputs: List[str]):
+    def is_reachable_from_inputs(self, graph: Graph, inputs: List[str], outputs: List[str]) -> Tuple[bool, str]:
         reachable_from_inputs = graph.bfs_forward(inputs)
         for var in outputs:
             if var not in reachable_from_inputs:
                 return (False, f"При данных входных переменных выходная переменная {var} недостижима")
         return (True, "")
     
-    def get_ordered_subgraph(self, graph_rel: dict):
+    def get_ordered_subgraph(self, graph_rel: dict) -> OrderedDict[str , List[Variables]]:
         operations = list(filter(lambda x: x in self.relationship, graph_rel.keys()))
     
         execution_order = []
@@ -103,7 +125,7 @@ class ComputeModel:
 
         return ordered_graph
     
-    def get_paths(self, inputs: List[str], outputs: List[str]) -> OrderedDict:
+    def get_paths(self, inputs: List[str], outputs: List[str]) -> OrderedDict[str , List[Variables]]:
 
         reachable_from_inputs = self.graph.bfs_forward(inputs)
         for var in outputs:
@@ -112,12 +134,8 @@ class ComputeModel:
     
         necessary_nodes = self.graph.bfs_backward(outputs, reachable_from_inputs)
 
-        subgraph_rel = {}
-        for node in necessary_nodes:
-            if node in self.relationship:
-                subgraph_rel[node] = self.relationship[node]
+        subgraph_rel = {node : self.relationship[node] for node in necessary_nodes if node in self.relationship}
 
-    
         all_paths = self.__get_all_paths(subgraph_rel, outputs)
 
         all_cnvrt_paths = []
@@ -129,103 +147,42 @@ class ComputeModel:
         nodes, edges = self.cvrt_to_graph(subgraph_rel)
         return {"nodes": nodes, "edges": edges}, all_cnvrt_paths
     
-    def __build_knf(self, outputs: List[str], forward_graph: Dict[str, str], reverse_graph: Dict[str, str]):
-        map_name_in_formula = {}
-        for i, name in enumerate(forward_graph.keys()):
-            name_in_formula = f"x{i}"
-            map_name_in_formula[name] = name_in_formula
-            map_name_in_formula[name_in_formula] = name
-
-        knf_list = []
-
-        q = deque(outputs)
-        visited = set()
-
-        while q:
-            var = q.popleft()
-            visited.add(var)
-
-            if len(reverse_graph[var]["output from"]):
-                knf_list.append("(")
-
-            for op in reverse_graph[var]["output from"]:
-                knf_list.append(f"{map_name_in_formula[op]}")
-                knf_list.append("|")
-            
-                for v in forward_graph[op][0]:
-                    if v not in visited:
-                        q.append(v)
-
-            if len(reverse_graph[var]["output from"]):
-                knf_list[-1] = ")"
-                knf_list.append("&")
-
-        knf_list.pop()
-
-        knf = expr("".join(knf_list))
-        
-        return knf, map_name_in_formula
+    def __get_all_paths(self, subgraph: OrderedDict, outputs: List[str]) -> \
+                            List[Dict[str, List[Variables]]]:
+        reversed_relations = self.get_reversed_relations(subgraph)
+        knf, map_formula_names = build_knf(outputs, subgraph, reversed_relations)
+        dnf = str(knf.to_dnf())
+        paths = parse_dnf(dnf, map_formula_names, self.relationship)   
+        paths = self.__filter_paths(paths, outputs)        
+        return paths
     
-    def __get_paths_from_dnf(self, dnf: str, map_fomula_names: Dict[str, str], outputs: List[str]):
-
-        if not ("And" in dnf) and not ("Or" in dnf):
-            paths = [dnf]
-        elif not ("And" in dnf) and  ("Or" in dnf):
-            paths = [dnf[3:-1]]
-        else:
-            regexpr = r"And\(([^)]+)\)"
-            paths = re.findall(regexpr, dnf)
-
-        paths = [v.split(", ") for v in paths]
-        
-        paths = [[map_fomula_names[v] for v in path] for path in paths]
-
-        path_rels = []
+    def __filter_paths(self, paths_relations: List[Dict], outputs: List[str]) -> \
+                                                    List[Dict[str, List[Variables]]]:
+        filtered_paths = []
         unique_paths = []
-        for path in paths:
-            path_rel = {}
-            r_set =  set(path)
-            for op in path:
-                path_rel[op] = self.relationship[op]
+        for relations in paths_relations:
+            graph = Graph(relations)
+            r_set =  set()
+            for op in relations:
                 r_set.update(self.relationship[op][0])
                 r_set.update(self.relationship[op][1])
-            graph = Graph(path_rel)
+                r_set.add(op)
+
             visited = set(filter(lambda x: x in self.relationship, graph.bfs_backward(outputs, r_set)))
-            unneed_nodes = set(path_rel.keys()) - visited
+            unneed_nodes = set(relations.keys()) - visited
 
             for node in unneed_nodes:
-                del path_rel[node]
+                del relations[node]
 
-            unique_ops = set(path_rel.keys())
+            unique_ops = set(relations.keys())
             if unique_ops in unique_paths:
                 continue
 
             unique_paths.append(unique_ops)
-            path_rels.append(path_rel)
-
-        return path_rels
+            filtered_paths.append(relations)
+        return filtered_paths
     
-    def __get_all_paths(self, subgraph: OrderedDict, outputs: List[str]):
-        reversed_relations = {}
-        
-        for op, vars in subgraph.items():
-            for var in vars[0] + vars[1]:
-                reversed_relations[var] = {"input to": [], "output from": []}
-        
-        for op, vars in subgraph.items():
-            for var in vars[0]:
-                reversed_relations[var]["input to"].append(op)
-
-            for var in vars[1]:
-                reversed_relations[var]["output from"].append(op)
-
-        knf, map_formula_names = self.__build_knf(outputs, subgraph, reversed_relations)
-        
-        dnf = str(knf.to_dnf())
-        paths = self.__get_paths_from_dnf(dnf, map_formula_names, outputs)           
-        return paths
-    
-    def __get_path_characteristics(self, path: Dict[str, str]):
+    def __get_path_characteristics(self, path: Dict[str, str]) -> Dict[str, int]:
         characts = {}
         for charact in self.characteristics:
             characts[charact] = 0
@@ -240,41 +197,41 @@ class ComputeModel:
 
         return characts
 
-    def cvrt_to_graph(self, relations):
+    def cvrt_to_graph(self, relations) -> Tuple[Dict[str, str], List[Dict[str, str]]]:
         
         nodes = {}
         edges = []
         for op in relations:
             if type(self.nodes[op]) == FictiveOperation:
-                nodes[op] = "fictiveOperation"
+                nodes[op] = NodeType.FICTIVE_OPERATION
             else:
-                nodes[op] = "operation"
+                nodes[op] = NodeType.OPERATION
             
             for var in relations[op][0]:
-                nodes[var] = "variable"
+                nodes[var] = NodeType.VARIABLE
                 edges.append({"from": var, "to": op})
 
             for var in relations[op][1]:
-                nodes[var] = "variable"
+                nodes[var] = NodeType.VARIABLE
                 edges.append({"from": op, "to": var})
         return nodes, edges
     
-    def cvrt_to_relations(self, nodes, edges): 
+    def cvrt_to_relations(self, nodes, edges) -> Dict: 
         relationship = {}
 
         for node, tpe in nodes.items():
-            if tpe  in ["operation", "fictiveOperation"]:
+            if tpe  in [NodeType.OPERATION, NodeType.FICTIVE_OPERATION]:
                 relationship[node] = [[], []]
         
         for edge in edges:
             
-            if nodes[edge["to"]] in ["operation", "fictiveOperation"]:
+            if nodes[edge["to"]] in [NodeType.OPERATION, NodeType.FICTIVE_OPERATION]:
                 relationship[edge["to"]][0].append(edge["from"])
             else:
                 relationship[edge["from"]][1].append(edge["to"])
         return relationship
     
-    def get_reversed_relations(self, relations):
+    def get_reversed_relations(self, relations) -> Dict:
         reversed_rel = {}
 
         for op in relations:
@@ -292,7 +249,7 @@ class ComputeModel:
     def get_graph(self):
         return self.cvrt_to_graph(self.relationship)
 
-    def delete_fictive_ops(self, graph: OrderedDict):
+    def delete_fictive_ops(self, graph: OrderedDict) -> OrderedDict:
 
         graph_copy = deepcopy(graph)
         replace_map = {}
@@ -312,7 +269,7 @@ class ComputeModel:
                     graph_copy[op_name][1][i] = replace_map[var_name]
         return graph_copy
     
-    def clear_paths_filtration(self, outputs: List[str], subgraph: dict, paths: List[dict]):
+    def clear_paths_filtration(self, outputs: List[str], subgraph: dict, paths: List[dict]) -> List[int]:
 
         subgraph_rel = self.cvrt_to_relations(subgraph["nodes"], subgraph["edges"])
         subgraph_rev_rel = self.get_reversed_relations(subgraph_rel)
@@ -342,26 +299,5 @@ class ComputeModel:
 
         return use_paths_id
 
-    def get_characts(self):
+    def get_characts(self) -> List[str]:
         return list(self.characteristics.keys())
-
-
-
-
-        
-
-        
-
-
-
-        
-        
-
-
-
-
-
-
-
-
-        

@@ -6,10 +6,13 @@ class Generator:
     subgraph: OrderedDict = None
 
     def __init__(self, filename: str, subgraph: OrderedDict):
+        # потенциальная ошибка
         with open(filename, "r") as f:
             self.map_cm_to_code = yaml.safe_load(f)
 
         self.subgraph = subgraph
+
+        # вернуть variables
         self._get_variables_dependecies()
 
     def _get_variables_dependecies(self):
