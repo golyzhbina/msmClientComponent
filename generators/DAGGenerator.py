@@ -14,8 +14,8 @@ OrderedDumper.add_representer(OrderedDict, _dict_representer)
 
 class DAGGenerator(Generator):
 
-    def __init__(self, filename: str, subgraph: OrderedDict, use_parallelism: bool = False):
-        super().__init__(filename, subgraph)
+    def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict, use_parallelism: bool = False):
+        super().__init__(filename, subgraph, reversed_subgraph)
         self.use_parallelism = use_parallelism
 
 
@@ -45,8 +45,8 @@ class DAGGenerator(Generator):
             dag[dag_id]["tasks"][op]["python_callable"] = self.map_cm_to_code[op]["func_path"]
             for var in self.map_cm_to_code[op]["variables"]:
                 map_name = self.map_cm_to_code[op]["variables"][var].get("name", var)
-                if map_name in inputs.get(op, {}):
-                    dag[dag_id]["tasks"][op][var] = inputs[op][map_name]
+                if var in inputs.get(op, {}):
+                    dag[dag_id]["tasks"][op][var] = inputs[op][var]
                 else:
                     dag[dag_id]["tasks"][op][var] = "+" + self.variables[map_name]["output_from"][0]
 

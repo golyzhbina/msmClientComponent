@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 
 class WorkflowGenerator(Generator):
-    def __init__(self, filename: str, subgraph: OrderedDict, use_parallelism: bool = False):
-        super().__init__(filename, subgraph)
+    def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict, use_parallelism: bool = False):
+        super().__init__(filename, subgraph, reversed_subgraph)
         self.use_parallelism = use_parallelism
     
     def __get_toml_name(self, op, var):
@@ -70,15 +70,18 @@ class WorkflowGenerator(Generator):
             for var, data in self.map_cm_to_code[op]["variables"].items():
 
                 var_descr = {"type": data["type"]}
-
+                v_name = self.__get_toml_name(op, var)
+                v_name = unique_variables_map.get(v_name, v_name)
                 if var in inputs.get(op, {}):
                     var_descr["is_input"] = True
                 
-                workflow_declaration_dict["variables"][self.__get_toml_name(op, var)] = var_descr
+                workflow_declaration_dict["variables"][v_name] = var_descr
             
             for var in self.subgraph[op][1]:
                 var_descr = {"type": data["type"]}
-                workflow_declaration_dict["variables"][self.__get_toml_name(op, var)] = var_descr
+                v_name = self.__get_toml_name(op, var)
+                v_name = unique_variables_map.get(v_name, v_name)
+                workflow_declaration_dict["variables"][v_name] = var_descr
 
         
         workflow_declaration_dict["variables"]["map_vars_file"] = {"type" : "str", "is_input": True}
@@ -92,11 +95,13 @@ class WorkflowGenerator(Generator):
                 if op_inputs[i] in unique_variables_map:
                     op_inputs[i] = unique_variables_map[op_inputs[i]]
 
-            workflow_declaration_dict["operations"][op] = OrderedDict()
-            workflow_declaration_dict["operations"][op]["type"] = self.map_cm_to_code[op]["type"]
-            workflow_declaration_dict["operations"][op]["declaration_url"] = self.map_cm_to_code[op]["declaration_url"]
-            workflow_declaration_dict["operations"][op]["inputs"] = op_inputs
-            workflow_declaration_dict["operations"][op]["outputs"] = op_outputs
+            unique_variables_map[self.__get_toml_name(op, "out")] = op_outputs[0]
+
+            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]] = OrderedDict()
+            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["type"] = self.map_cm_to_code[op]["type"]
+            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["declaration_url"] = self.map_cm_to_code[op]["declaration_url"]
+            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["inputs"] = op_inputs
+            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["outputs"] = op_outputs
         
 
         with open(path_to_declaration / "declaration.toml", "w") as toml_file:

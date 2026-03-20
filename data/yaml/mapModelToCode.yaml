@@ -256,6 +256,9 @@ get_detect_function:
       name: "cube"
       description: "path to cube object"
       type: str
+    time_interval:
+      description: ""
+      type: "[i32]"
   expand: cube_path
 
 plot_detect_function:
@@ -285,6 +288,15 @@ get_maxes:
       type: "str"
     region_path:
       name: "region"
+      description: ""
+      type: "str"
+
+filter_maxes:
+  func_path: "msm_dags_ops."
+  description: ""
+  variables:
+    maxes_path:
+      name: "raw_maxes"
       description: ""
       type: "str"
 

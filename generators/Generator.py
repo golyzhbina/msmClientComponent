@@ -5,28 +5,13 @@ class Generator:
     map_cm_to_code: dict = None
     subgraph: OrderedDict = None
 
-    def __init__(self, filename: str, subgraph: OrderedDict):
+    def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict):
         # потенциальная ошибка
         with open(filename, "r") as f:
             self.map_cm_to_code = yaml.safe_load(f)
 
-        self.subgraph = subgraph
-
-        # вернуть variables
-        self._get_variables_dependecies()
-
-    def _get_variables_dependecies(self):
-        self.variables = {}
-
-        for _, op_descr in self.subgraph.items():
-            for v in op_descr[0] + op_descr[1]:
-                self.variables[v] = {"output_from": [], "input_to" : []}
-        
-        for op_name, op_descr in self.subgraph.items():
-            for v in op_descr[0]:
-                self.variables[v]["input_to"].append(op_name)
-            for v in op_descr[1]:
-                self.variables[v]["output_from"].append(op_name)
+        self.subgraph: OrderedDict = subgraph
+        self.variables: dict = reversed_subgraph
     
     def get_inputs(self) -> OrderedDict:
         

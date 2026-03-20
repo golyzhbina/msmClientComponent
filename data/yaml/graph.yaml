@@ -79,7 +79,10 @@ graph:
     detect_function:
       class:
         - detect_function
-    maxes:
+    raw_maxes:
+      class:
+        - maxes
+    filtered_maxes:
       class:
         - maxes
     slices:
@@ -280,21 +283,31 @@ graph:
       characters:
         diff: 1
       inputs:
-        cube: name
+        cube: class
         detect_function: name
         region: name
       outputs:
-        - maxes
+        - raw_maxes
+
+    filter_maxes:
+      class: filtered_maxes
+      characters:
+        diff: 1
+      inputs:
+        raw_maxes: name
+      outputs:
+        - filtered_maxes
+      
     
     get_slice:
       class: get_slice
       characters:
         diff: 1
       inputs:
-        maxes: name
+        maxes: class
         cube: name
         region: name
-        rec_coords_on_net: name
+        rec_coords: name
       outputs:
         - slices
     
@@ -312,8 +325,10 @@ graph:
       characters:
         diff: 1
       inputs:
-        maxes: name
+        maxes: class
         filtered_traces: class
+        travel_time: name
+        region: name
       outputs:
         - chart_tt_at_traces
     
@@ -323,7 +338,7 @@ graph:
         diff: 1
       inputs:
         detect_function: name
-        maxes: name
+        maxes: class
       outputs:
         - chart_max_at_detect_function
     
@@ -332,7 +347,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        maxes: name
+        maxes: class
       outputs:
         - chart_maxes_at_timeline
     
@@ -341,7 +356,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        maxes: name
+        maxes: class
       outputs:
         - chart_maxes_at_square
 
