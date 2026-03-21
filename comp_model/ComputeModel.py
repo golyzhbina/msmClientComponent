@@ -136,7 +136,7 @@ class ComputeModel:
 
         subgraph_rel = {node : self.relationship[node] for node in necessary_nodes if node in self.relationship}
 
-        all_paths = self.__get_all_paths(subgraph_rel, outputs)
+        all_paths = self.__get_all_paths(subgraph_rel, inputs, outputs)
 
         all_cnvrt_paths = []
         for path in all_paths:
@@ -147,10 +147,10 @@ class ComputeModel:
         nodes, edges = self.cvrt_to_graph(subgraph_rel)
         return {"nodes": nodes, "edges": edges}, all_cnvrt_paths
     
-    def __get_all_paths(self, subgraph: OrderedDict, outputs: List[str]) -> \
+    def __get_all_paths(self, subgraph: OrderedDict, inputs: List[str], outputs: List[str]) -> \
                             List[Dict[str, List[Variables]]]:
         reversed_relations = self.get_reversed_relations(subgraph)
-        knf, map_formula_names = build_knf(outputs, subgraph, reversed_relations)
+        knf, map_formula_names = build_knf(inputs, outputs, subgraph, reversed_relations)
         dnf = str(knf.to_dnf())
         paths = parse_dnf(dnf, map_formula_names, self.relationship)   
         paths = self.__filter_paths(paths, outputs)        
@@ -203,16 +203,16 @@ class ComputeModel:
         edges = []
         for op in relations:
             if type(self.nodes[op]) == FictiveOperation:
-                nodes[op] = NodeType.FICTIVE_OPERATION
+                nodes[op] = NodeType.FICTIVE_OPERATION.value
             else:
-                nodes[op] = NodeType.OPERATION
+                nodes[op] = NodeType.OPERATION.value
             
             for var in relations[op][0]:
-                nodes[var] = NodeType.VARIABLE
+                nodes[var] = NodeType.VARIABLE.value
                 edges.append({"from": var, "to": op})
 
             for var in relations[op][1]:
-                nodes[var] = NodeType.VARIABLE
+                nodes[var] = NodeType.VARIABLE.value
                 edges.append({"from": op, "to": var})
         return nodes, edges
     
@@ -220,12 +220,12 @@ class ComputeModel:
         relationship = {}
 
         for node, tpe in nodes.items():
-            if tpe  in [NodeType.OPERATION, NodeType.FICTIVE_OPERATION]:
+            if tpe  in [NodeType.OPERATION.value, NodeType.FICTIVE_OPERATION.value]:
                 relationship[node] = [[], []]
         
         for edge in edges:
             
-            if nodes[edge["to"]] in [NodeType.OPERATION, NodeType.FICTIVE_OPERATION]:
+            if nodes[edge["to"]] in [NodeType.OPERATION.value, NodeType.FICTIVE_OPERATION.value]:
                 relationship[edge["to"]][0].append(edge["from"])
             else:
                 relationship[edge["from"]][1].append(edge["to"])

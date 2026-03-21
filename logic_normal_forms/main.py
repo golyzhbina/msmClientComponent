@@ -4,7 +4,7 @@ import re
 from typing import Dict, Tuple, List
 from collections import deque
 
-def build_knf(outputs: List[str], 
+def build_knf(inputs: List[str], outputs: List[str], 
                 forward_graph: Dict[str, str], 
                 reverse_graph: Dict[str, str]) -> Tuple[str, Dict[str, str]]:
     map_name_in_formula = {}
@@ -21,6 +21,9 @@ def build_knf(outputs: List[str],
     while q:
         var = q.popleft()
         visited.add(var)
+
+        if var in inputs:
+            continue
 
         if len(reverse_graph[var]["output_from"]):
             knf_list.append("(")
