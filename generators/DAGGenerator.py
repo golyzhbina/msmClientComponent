@@ -23,6 +23,7 @@ class DAGGenerator(Generator):
             self,
             filename: str, 
             inputs: dict, 
+            home_dir: str,
             dag_id: str,
             schedule_interval: str = "@once",  
             owner: str = "airflow", 
@@ -31,6 +32,8 @@ class DAGGenerator(Generator):
         ):
 
         dag = {dag_id: OrderedDict()}
+        dag["params"] = {}
+        dag["params"]["home_dir"] = home_dir
         dag[dag_id]["schedule_interval"] = schedule_interval
         dag[dag_id]["default_args"] = {
             "owner" : owner,
@@ -44,11 +47,11 @@ class DAGGenerator(Generator):
             dag[dag_id]["tasks"][op]["decorator"] = "airflow.decorators.task"
             dag[dag_id]["tasks"][op]["python_callable"] = self.map_cm_to_code[op]["func_path"]
             for var in self.map_cm_to_code[op]["variables"]:
-                map_name = self.map_cm_to_code[op]["variables"][var].get("name", var)
-                if var in inputs.get(op, {}):
-                    dag[dag_id]["tasks"][op][var] = inputs[op][var]
+                var_id = self.map_cm_to_code[op]["variables"][var].get("name", Generator.get_var_id(op, var))
+                if var_id in inputs:
+                    dag[dag_id]["tasks"][op][var] = inputs[var_id]
                 else:
-                    dag[dag_id]["tasks"][op][var] = "+" + self.variables[map_name]["output_from"][0]
+                    dag[dag_id]["tasks"][op][var] = "+" + self.variables[var_id]["output_from"][0]
 
 
         with open(filename, "w") as f:
@@ -60,23 +63,34 @@ class DAGGenerator(Generator):
                 {   
                     "name" : "path",
                     "type": "str",
-                    "description" : "path to airflow dags"
+                    "description" : "path to airflow dags",
+                    "default" : "/home/golub/airflow/dags"
+                },
+
+                {
+                    "name": 'home_dir',
+                    "type" : "str", 
+                    "description": "path for out files",
+                    "default" : "/home/golub/msm/data/out"
                 },
 
                 {   
                     "name" : "YAML file name",
-                    "type" : "str"
+                    "type" : "str",
+                    "default" : "test_msm_dag"
                 },
 
                 {
                     "name" : "dag_id",
-                    "type" : "str"
+                    "type" : "str",
+                    "default" : "test_msm"
                 },
 
                 {
                     "name" : "out_dir",
                     "type" : "str",
-                    "description" :  "path to out files"
+                    "description" :  "path to out files",
+                    "default" : "/home/golub/msm/data/out"
                 },
 
                 {
@@ -101,6 +115,7 @@ class DAGGenerator(Generator):
                 {
                     "name" : "tags", 
                     "type" : "List[str]",
-                    "descrtption" : "еnter tags separated by commas"
+                    "descrtption" : "еnter tags separated by commas",
+                    "default" : "msm"
                 }
             ]

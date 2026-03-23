@@ -68,11 +68,10 @@ class WorkflowGenerator(Generator):
         
         for op in self.subgraph:
             for var, data in self.map_cm_to_code[op]["variables"].items():
-
                 var_descr = {"type": data["type"]}
                 v_name = self.__get_toml_name(op, var)
                 v_name = unique_variables_map.get(v_name, v_name)
-                if var in inputs.get(op, {}):
+                if var in inputs or Generator.get_var_id(op, var) in inputs:
                     var_descr["is_input"] = True
                 
                 workflow_declaration_dict["variables"][v_name] = var_descr
@@ -130,9 +129,13 @@ class WorkflowGenerator(Generator):
         workflow_app_dict["experiments_number"] = experiments_number
         
         inputs_dict = {}
-        for op in inputs:
-            for var, value in inputs[op].items():
-                inputs_dict[self.__get_toml_name(op, var)] = value
+        for op in self.subgraph:
+            for var, descr in self.map_cm_to_code[op]["variables"].items():
+                var_id = descr.get("name", Generator.get_var_id(op, var))
+                if var_id in inputs and "name" in descr:
+                    inputs_dict[self.__get_toml_name(op, var_id)] = inputs[var_id]
+                elif var_id in inputs and not ("name" in descr):
+                    inputs_dict[var_id] = inputs[var_id] 
         inputs_dict["map_vars_file"] = str(path_to_app / "map_vars_file.json")
         
         workflow_app_dict["inputs"] = inputs_dict
@@ -159,37 +162,43 @@ class WorkflowGenerator(Generator):
             {
                 "name" : "path",
                 "type": "str",
-                "description" : "path to decalration and app file"
+                "description" : "path to decalration and app file",
+                "default" : "/home/golub/execucore_ops"
             },
 
             {
                 "name" : "domain",
                 "type": "str",
-                "description" : ""
+                "description" : "",
+                "default": "msm"
             },
 
             {
                 "name" : "name",
                 "type": "str",
-                "description" : "name of workflow"
+                "description" : "name of workflow",
+                "default": "test_wf"
             },
 
             {
                 "name" : "username",
                 "type": "str",
-                "description" : ""
+                "description" : "",
+                "default": "golub"
             },
 
             {
                 "name" : "experiments_number",
                 "type": "int",
-                "description" : "number of threads"
+                "description" : "number of threads",
+                "default": 1
             },
 
             {   
                 "name" : "remote.name",
                 "type": "str",
-                "description" : "name of remote user"
+                "description" : "name of remote user",
+                "default": "executor"
             },
 
             { 
@@ -203,7 +212,8 @@ class WorkflowGenerator(Generator):
                 "name" : "remote.workload_manager",
                 "type": "str",
                 "default" : "execucore",
-                "description" : 'type of workload manager, maybe "execucore" or "slurm"'
+                "description" : 'type of workload manager, maybe "execucore" or "slurm"',
+
             },
 
             {
@@ -215,24 +225,28 @@ class WorkflowGenerator(Generator):
 
             {
                 "name" : "hardware_requirements.nodes_limit",
-                "type": "int"
+                "type": "int",
+                "default" : "-"
             },
 
             {
                 "name" : "hardware_requirements.cpu_limit",
-                "type": "int"
+                "type": "int",
+                "default" : "-"
             },
 
             {
                 "name" : "hardware_requirements.memory_limit",
                 "type": "str",
-                "description": 'need memory on each nodes, format: <volume>[M|G|T]'
+                "description": 'need memory on each nodes, format: <volume>[M|G|T]',
+                "default" : "-"
             },
 
             {
                 "name" :"hardware_requirements.time_limit",
                 "type": "str",
-                "description": 'format: dd-hh:mm:ss'
+                "description": 'format: dd-hh:mm:ss',
+                "default" : "-"
             }
         ]
     

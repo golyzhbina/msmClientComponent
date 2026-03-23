@@ -41,3 +41,6 @@ class Generator:
     def get_operation_description(self, op_name): 
         return self.map_cm_to_code[op_name].get("description", "")
     
+    @staticmethod
+    def get_var_id(op: str, var: str):
+        return f"{op}__{var}"
