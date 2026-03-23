@@ -62,6 +62,9 @@ graph:
     traces_with_sc:
       class:
         - filtered_traces
+    traces_for_stat_corrs:
+      class:
+        - traces_for_stat_corrs
     tensor:
       class:
         - tensor
@@ -222,7 +225,7 @@ graph:
       characters:
         diff: 1
       inputs:
-        traces_without_stat_corrs: class
+        traces_for_stat_corrs: name
       outputs:
         - stat_corrs
       

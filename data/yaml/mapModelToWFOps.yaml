@@ -120,12 +120,12 @@ read_traces:
 
 get_stat_corrs:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/get_stat_corrs/declaration.toml"
+  declaration_url: "file://localhost/$PWD/ops/stat_corrs_get_stat_corrs/declaration.toml"
   ops_path: get_stat_corrs
   description: ""
   variables:
     traces_path: 
-      name: "traces_without_stat_corrs"
+      name: "traces_for_stat_corrs"
       type: "str"
       description: "path to traces obj"
     window_size:
@@ -134,8 +134,8 @@ get_stat_corrs:
 
 apply_stat_corrs:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/apply_stat_corrs/declaration.toml"
-  ops_path: apply_stat_corrs
+  declaration_url: "file://localhost/$PWD/ops/stat_corrs_add_static_correction/declaration.toml"
+  ops_path: stat_corrs_add_static_correction
   func_path: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
   description: ""
   variables:

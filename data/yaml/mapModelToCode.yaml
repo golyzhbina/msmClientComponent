@@ -20,7 +20,7 @@ read_recs:
       type: "str"
 
 get_coords_on_net:
-  func_path: "msm_dags_ops.rec_coords_ops_wrappers.get_coords_on_net"
+  func_path: "msm_dags_ops.rec_coords_ops_wrappers.get_coords_on_net_helper"
   description: "determines the position of receivers on the source grid"
   variables:
     rec_coords_path:
@@ -85,6 +85,7 @@ get_travel_time:
     rec_coords_path:
       name: "rec_coords_on_net"
       description: "path to receivers coords object"
+      type: "str"
     dt: 
       description: "trace sampling frequency in milliseconds"
       type: "int"
@@ -108,7 +109,7 @@ get_stat_corrs:
   description: ""
   variables:
     traces_path: 
-      name: "traces_without_stat_corrs"
+      name: "traces_for_stat_corrs"
       type: "str"
       description: "path to traces obj"
     window_size:
@@ -190,7 +191,7 @@ get_cube:
       description: "path to region object"
       type: "str"
     time_interval:
-      type: "Tuple[int]"
+      type: "List[int]"
       description: "summation time interval"
   expand: traces_path
 
@@ -249,7 +250,7 @@ get_slice:
       type: "str"
 
 get_detect_function:
-  func_path: "msm_dags_ops.result_interpret_wrappers.get_detect_function_helper"
+  func_path: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
   description: "obtains maximum cube values ​​along the time axis"
   variables:
     cube_path:
@@ -262,7 +263,7 @@ get_detect_function:
   expand: cube_path
 
 plot_detect_function:
-  func_path: "msm_dags_ops."
+  func_path: "msm_dags_ops.result_interpret_wrappers.plot_df_helper"
   description: "plot detect func"
   variables:
     detect_function_path:
@@ -275,7 +276,7 @@ plot_detect_function:
   expand: detect_function_path
 
 get_maxes:
-  func_path: "msm_dags_ops."
+  func_path: "msm_dags_ops.max_processing_wrapers.get_maxes_helper"
   description: ""
   variables:
     cube_path:
@@ -292,16 +293,25 @@ get_maxes:
       type: "str"
 
 filter_maxes:
-  func_path: "msm_dags_ops."
+  func_path: "msm_dags_ops.max_processing_wrapers.filter_maxes_helper"
   description: ""
   variables:
     maxes_path:
       name: "raw_maxes"
       description: ""
       type: "str"
+    threshold_value: 
+      description: ""
+      type: "float"
+    radius:
+      description: ""
+      type: "float"
+    kernel_size:
+      description: ""
+      type: "float"
 
 draw_maxes_at_detect_function:
-  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_detect_function_helper"
+  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"
   description: ""
   variables:
     maxes_path:
