@@ -100,7 +100,7 @@ class WorkflowGenerator(Generator):
 
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]] = OrderedDict()
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["type"] = self.map_cm_to_code[op]["type"]
-            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["declaration_url"] = f'{path_to_ops}/{self.map_cm_to_code[op]["declaration_url"]}
+            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["declaration_url"] = f'{path_to_ops}/{self.map_cm_to_code[op]["declaration_url"]}'
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["inputs"] = op_inputs
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["outputs"] = op_outputs
         
