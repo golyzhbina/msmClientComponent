@@ -15,6 +15,7 @@ class WorkflowGenerator(Generator):
     def get_declaration_file(
         self,
         path_to_declaration: str, 
+        path_to_ops: str,
         inputs: dict, 
         domain: str,
         declarations_url: str = "file://localhost/$PWD/dtypes"
@@ -99,7 +100,7 @@ class WorkflowGenerator(Generator):
 
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]] = OrderedDict()
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["type"] = self.map_cm_to_code[op]["type"]
-            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["declaration_url"] = self.map_cm_to_code[op]["declaration_url"]
+            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["declaration_url"] = f'{path_to_ops}/{self.map_cm_to_code[op]["declaration_url"]}
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["inputs"] = op_inputs
             workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["outputs"] = op_outputs
         
@@ -164,7 +165,14 @@ class WorkflowGenerator(Generator):
                 "name" : "path",
                 "type": "str",
                 "description" : "path to decalration and app file",
-                "default" : "/home/golub/execucore_ops"
+                "default" : "/home/golub/flask_app"
+            },
+
+            {
+                "name" : "execucore ops path",
+                "type": "str",
+                "description" : "path to decalration and app file",
+                "default" : "file://localhost/home/golub/execucore_ops"
             },
 
             {

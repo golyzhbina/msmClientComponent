@@ -1,6 +1,6 @@
 load_veldata:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/parsing_load_veldata/declaration.toml"
+  declaration_url: "ops/parsing_load_veldata/declaration.toml"
   ops_path: parsing_load_veldata 
   description: "reads a one-dimensional NPY-array of velocities and create regular array of depths from -len(vel) * step to 0 with specifed step"
   variables:
@@ -14,7 +14,7 @@ load_veldata:
     
 read_recs:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/parsing_read_rec_coords/declaration.toml"
+  declaration_url: "ops/parsing_read_rec_coords/declaration.toml"
   ops_path: parsing_read_rec_coords
   description: "read receivers coordinates"
   variables:
@@ -25,7 +25,7 @@ read_recs:
 
 get_coords_on_net:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/parsing_get_coords_on_net/declaration.toml"
+  declaration_url: "ops/parsing_get_coords_on_net/declaration.toml"
   ops_path: parsing_get_coords_on_net
   variables:
     rec_coords_path:
@@ -39,7 +39,7 @@ get_coords_on_net:
 
 create_region:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/region_create_region/declaration.toml"
+  declaration_url: "ops/region_create_region/declaration.toml"
   ops_path: region_create_region
   variables:
     net_coords: 
@@ -51,7 +51,7 @@ create_region:
 
 get_velmodel:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/model_get_velmodel/declaration.toml"
+  declaration_url: "ops/model_get_velmodel/declaration.toml"
   ops_path: model_get_velmodel
   variables:
     depths_vel_path:
@@ -72,7 +72,7 @@ get_velmodel:
 
 solve_eikonal:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/tt_solve_eikonal/declaration.toml"
+  declaration_url: "ops/tt_solve_eikonal/declaration.toml"
   ops_path: tt_solve_eikonal
   description: "solve eikonal equation"
   variables:
@@ -86,7 +86,7 @@ solve_eikonal:
 
 get_travel_time:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/tt_get_travel_time/declaration.toml"
+  declaration_url: "ops/tt_get_travel_time/declaration.toml"
   ops_path: tt_get_travel_time
   description: "obtaining an array of travel times from each receiver to each source based on the solution of the eikonal equation"
   variables:
@@ -104,7 +104,7 @@ get_travel_time:
 
 read_traces:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/traces_read_traces/declaration.toml"
+  declaration_url: "ops/traces_read_traces/declaration.toml"
   ops_path: read_traces
   description: ""
   variables:
@@ -120,7 +120,7 @@ read_traces:
 
 get_stat_corrs:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/stat_corrs_get_stat_corrs/declaration.toml"
+  declaration_url: "ops/stat_corrs_get_stat_corrs/declaration.toml"
   ops_path: get_stat_corrs
   description: ""
   variables:
@@ -134,7 +134,7 @@ get_stat_corrs:
 
 apply_stat_corrs:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/stat_corrs_add_static_correction/declaration.toml"
+  declaration_url: "ops/stat_corrs_add_static_correction/declaration.toml"
   ops_path: stat_corrs_add_static_correction
   func_path: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
   description: ""
@@ -150,7 +150,7 @@ apply_stat_corrs:
 
 hilb_filtration:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/traces_hilb_filtration/declaration.toml"
+  declaration_url: "ops/traces_hilb_filtration/declaration.toml"
   ops_path: traces_hilb_filtration
   description: ""
   variables:
@@ -162,7 +162,7 @@ hilb_filtration:
 
 abs_filtration:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/traces_abs_filtration/declaration.toml"
+  declaration_url: "ops/traces_abs_filtration/declaration.toml"
   ops_path: traces_abs_filtration
   description: ""
   variables:
@@ -174,7 +174,7 @@ abs_filtration:
 
 frequency_filtration:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/traces_frequency_filtration/declaration.toml"
+  declaration_url: "ops/traces_frequency_filtration/declaration.toml"
   ops_path: traces_frequency_filtration
   description: ""
   variables:
@@ -186,7 +186,7 @@ frequency_filtration:
 
 merge_traces:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/traces_merge_traces/declaration.toml"
+  declaration_url: "ops/traces_merge_traces/declaration.toml"
   ops_path: traces_merge_traces
   description: ""
   variables:
@@ -203,7 +203,7 @@ merge_traces:
 
 get_cube:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/cube_get_cube/declaration.toml"
+  declaration_url: "ops/cube_get_cube/declaration.toml"
   ops_path: cube_get_cube
   description: "coherent summation"
   variables:
@@ -226,7 +226,7 @@ get_cube:
 
 get_cube_with_tensor:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/cube_get_cube_with_tm/declaration.toml"
+  declaration_url: "ops/cube_get_cube_with_tm/declaration.toml"
   ops_path: cube_get_cube_with_tm
   description: "coherent summation with tensor moment"
   variables:
@@ -252,7 +252,7 @@ get_cube_with_tensor:
 
 get_cumsum:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/cube_get_cumsum/declaration.toml"
+  declaration_url: "ops/cube_get_cumsum/declaration.toml"
   ops_path: cube_get_cumsum
   description: "cumulative summation with a window of kernel_size"
   variables:
@@ -270,7 +270,7 @@ get_cumsum:
 
 get_slice:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/interpret_get_slices/declaration.toml"
+  declaration_url: "ops/interpret_get_slices/declaration.toml"
   ops_path: interpret_get_slices
   description: "constructs slices of a cube by time at its maxima"
   variables:
@@ -293,7 +293,7 @@ get_slice:
 
 get_detect_function:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/interpret_get_detect_func/declaration.toml"
+  declaration_url: "ops/interpret_get_detect_func/declaration.toml"
   ops_path: interpret_get_detect_func
   description: "obtains maximum cube values ​​along the time axis"
   variables:
@@ -308,7 +308,7 @@ get_detect_function:
 
 plot_detect_function:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/interpret_plot_detect_func/declaration.toml"
+  declaration_url: "ops/interpret_plot_detect_func/declaration.toml"
   ops_path: interpret_plot_detect_func
   description: "plot detect func"
   variables:
@@ -323,7 +323,7 @@ plot_detect_function:
 
 get_maxes:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/maxes_find_maxes/declaration.toml"
+  declaration_url: "ops/maxes_find_maxes/declaration.toml"
   ops_path: maxes_find_maxes
   description: ""
   variables:
@@ -342,7 +342,7 @@ get_maxes:
 
 filter_maxes:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/maxes_filtered_maxes/declaration.toml"
+  declaration_url: "ops/maxes_filtered_maxes/declaration.toml"
   ops_path: maxes_filtered_maxes
   description: ""
   variables:
@@ -363,7 +363,7 @@ filter_maxes:
 
 draw_maxes_at_detect_function:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/interpret_draw_maxes_at_df/declaration.toml"
+  declaration_url: "ops/interpret_draw_maxes_at_df/declaration.toml"
   ops_path: interpret_draw_maxes_at_df
   description: ""
   variables:
@@ -378,7 +378,7 @@ draw_maxes_at_detect_function:
 
 draw_tt_at_traces:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/interpret_draw_tt_at_traces/declaration.toml"
+  declaration_url: "ops/interpret_draw_tt_at_traces/declaration.toml"
   ops_path: interpret_draw_tt_at_traces
   description: ""
   variables:
@@ -413,7 +413,7 @@ draw_tt_at_traces:
     
 draw_maxes_at_timeline:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/interpret_draw_all_maxes_at_timeline/declaration.toml"
+  declaration_url: "ops/interpret_draw_all_maxes_at_timeline/declaration.toml"
   ops_path: interpret_draw_all_maxes_at_timeline
   description: "plot maxes at timeline"
   variables:
@@ -424,7 +424,7 @@ draw_maxes_at_timeline:
 
 draw_maxes_at_square:
   type: "map"
-  declaration_url: "file://localhost/$PWD/ops/interpret_draw_all_maxes_at_square/declaration.toml"
+  declaration_url: "ops/interpret_draw_all_maxes_at_square/declaration.toml"
   ops_path: interpret_draw_all_maxes_at_square
   description: "plot maxes at source region"
   variables:
