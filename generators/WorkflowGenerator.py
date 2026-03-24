@@ -71,7 +71,8 @@ class WorkflowGenerator(Generator):
                 var_descr = {"type": data["type"]}
                 v_name = self.__get_toml_name(op, var)
                 v_name = unique_variables_map.get(v_name, v_name)
-                if var in inputs or Generator.get_var_id(op, var) in inputs:
+                var_id = data.get("name", Generator.get_var_id(op, var))
+                if var_id in inputs:
                     var_descr["is_input"] = True
                 
                 workflow_declaration_dict["variables"][v_name] = var_descr
@@ -84,7 +85,7 @@ class WorkflowGenerator(Generator):
 
         
         workflow_declaration_dict["variables"]["map_vars_file"] = {"type" : "str", "is_input": True}
-
+        
         for op in self.subgraph:
             op_inputs = [self.__get_toml_name(op, var) for  var in list(self.map_cm_to_code[op]["variables"].keys())]
             op_inputs.append("map_vars_file")
@@ -125,15 +126,15 @@ class WorkflowGenerator(Generator):
         workflow_app_dict= OrderedDict()
         workflow_app_dict["name"] = workflow_name
         workflow_app_dict["username"] = user_name
-        workflow_app_dict["declaration_url"] = declaration_url
+        workflow_app_dict["declaration_url"] = f"file://localhost{declaration_url}"
         workflow_app_dict["experiments_number"] = experiments_number
-        
+
         inputs_dict = {}
         for op in self.subgraph:
             for var, descr in self.map_cm_to_code[op]["variables"].items():
                 var_id = descr.get("name", Generator.get_var_id(op, var))
                 if var_id in inputs and "name" in descr:
-                    inputs_dict[self.__get_toml_name(op, var_id)] = inputs[var_id]
+                    inputs_dict[self.__get_toml_name(op, var)] = inputs[var_id]
                 elif var_id in inputs and not ("name" in descr):
                     inputs_dict[var_id] = inputs[var_id] 
         inputs_dict["map_vars_file"] = str(path_to_app / "map_vars_file.json")
@@ -226,27 +227,27 @@ class WorkflowGenerator(Generator):
             {
                 "name" : "hardware_requirements.nodes_limit",
                 "type": "int",
-                "default" : "-"
+                "default" : 1
             },
 
             {
                 "name" : "hardware_requirements.cpu_limit",
                 "type": "int",
-                "default" : "-"
+                "default" : 1
             },
 
             {
                 "name" : "hardware_requirements.memory_limit",
                 "type": "str",
                 "description": 'need memory on each nodes, format: <volume>[M|G|T]',
-                "default" : "-"
+                "default" : "4G"
             },
 
             {
                 "name" :"hardware_requirements.time_limit",
                 "type": "str",
                 "description": 'format: dd-hh:mm:ss',
-                "default" : "-"
+                "default" : "00-00:30:00"
             }
         ]
     

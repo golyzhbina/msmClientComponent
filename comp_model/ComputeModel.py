@@ -11,8 +11,6 @@ from copy import deepcopy
 from enum import Enum
 
 import yaml
-from pyeda.inter import expr
-import re
 
 Variables: TypeAlias = List[str]
 
@@ -28,7 +26,6 @@ class ComputeModel:
         with open(path_to_model, "r") as f:
             model_dict = yaml.safe_load(f)
 
-        # алиасы
         self.characteristics: Dict[str, Characteristic] = \
         self.__read_characteristics(model_dict["operation_characteristics"])
 

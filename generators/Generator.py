@@ -6,7 +6,7 @@ class Generator:
     subgraph: OrderedDict = None
 
     def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict):
-        # потенциальная ошибка
+        
         with open(filename, "r") as f:
             self.map_cm_to_code = yaml.safe_load(f)
 
@@ -30,7 +30,7 @@ class Generator:
                 if map_name in self.variables and \
                    len(self.variables[map_name]["output_from"]) == 0  or \
                    map_name not in self.variables:
-                    var_id = var_id if var_id else f"{op}_{v_name}"
+                    var_id = var_id if var_id else self.get_var_id(op, v_name)
                     inputs[op][v_name] = v_info
                     inputs[op][v_name].pop("name", None)
                     inputs[op][v_name]["id"] = var_id
