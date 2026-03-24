@@ -3,8 +3,6 @@ from generators import DAGGenerator, WorkflowGenerator
 
 import os
 from pathlib import Path
-import json
-
 
 path = Path(os.path.dirname(os.path.abspath(__file__)))
 path_to_yamls = path / "data" / "yaml" 
@@ -17,20 +15,21 @@ outputs = ["hilb_traces"]
 subgraph, all_paths = cm.get_paths(inputs, outputs)
 
 use_paths = cm.clear_paths_filtration(outputs, subgraph, all_paths)
-rel_algo = cm.cvrt_to_relations(all_paths[0]["nodes"], all_paths[0]["edges"])
+algo = min(all_paths, key=lambda x: x["characts"]["diff"])
+rel_algo = cm.cvrt_to_relations(algo["nodes"], algo["edges"])
 ordered_sg = cm.get_ordered_subgraph(rel_algo)
 ordered_sg = cm.delete_fictive_ops(ordered_sg)
 reversed_rel = cm.get_reversed_relations(ordered_sg)
 
 wf_generator = WorkflowGenerator(path_to_yamls / "mapModelToWFOps.yaml", ordered_sg, reversed_rel)
 inputs = {
-    'read_traces':  
-     {'filename': "/home/golub/msm/data/sgy/SY_seismic_data.sgy", 
-      'normalize': False}
-    }
+    'traces_path': "/home/golub/msm/data/sgy/SY_seismic_data.sgy", 
+    'read_traces__normalize': False,
+}
 
 var_map = wf_generator.get_declaration_file(
     path,
+    "/home/golub/execucore_ops/",
     inputs,
     "msm"
 )
@@ -44,6 +43,7 @@ wf_generator.get_application_file(
     inputs,
     {
         "name": "executor",
+        "execucore ops path" : "/home/golub/execucore_ops/",
         "type": "ssh",
         "config": {
             "name": "executor",
@@ -64,5 +64,6 @@ dag_generator = DAGGenerator(path_to_yamls / "mapModelToCode.yaml", ordered_sg, 
 dag_generator.get_declaration_file(
     "test_dag.yaml",
     inputs, 
+    "/home/golub/msm/data/out",
     "test_dag"
 )
