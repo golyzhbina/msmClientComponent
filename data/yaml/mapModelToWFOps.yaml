@@ -130,7 +130,16 @@ get_stat_corrs:
       description: "path to traces obj"
     window_size:
       type: "i32"
+      decription: "max corrections"
+    amount_iter:
+      type: "i32"
+      decription: ""
+    batch_size:
+      type: "i32"
       decription: "amount traces for calculate etalon"
+    time_interval:
+      type: "List[int]"
+      decription: ""
 
 apply_stat_corrs:
   type: "map"

@@ -114,7 +114,16 @@ get_stat_corrs:
       description: "path to traces obj"
     window_size:
       type: "int"
+      decription: "max corrections"
+    amount_iter:
+      type: "int"
+      decription: ""
+    batch_size:
+      type: "int"
       decription: "amount traces for calculate etalon"
+    time_interval:
+      type: "List[int]"
+      decription: ""
 
 apply_stat_corrs:
   func_path: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
