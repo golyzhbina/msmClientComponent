@@ -128,6 +128,14 @@ get_stat_corrs:
       name: "traces_for_stat_corrs"
       type: "str"
       description: "path to traces obj"
+    region_path:
+      type: "str"
+      description: "path to region object"
+      name: "region"
+    travel_time_path:
+      type: "str"
+      description: "path to travel time object"
+      name: "travel_time"
     window_size:
       type: "i32"
       decription: "max corrections"
@@ -140,6 +148,10 @@ get_stat_corrs:
     time_interval:
       type: "List[int]"
       decription: ""
+    source_coords:
+      type: "List[int]"
+      description: "two coords of source"
+    
 
 apply_stat_corrs:
   type: "map"
