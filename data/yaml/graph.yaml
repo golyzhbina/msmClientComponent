@@ -226,6 +226,8 @@ graph:
         diff: 1
       inputs:
         traces_for_stat_corrs: name
+        region: name
+        travel_time: name
       outputs:
         - stat_corrs
       
