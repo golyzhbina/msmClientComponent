@@ -132,6 +132,9 @@ get_stat_corrs:
     time_interval:
       type: "List[int]"
       decription: ""
+    subtrahend:
+      type: "int"
+      description: "the value by which the maximum static correction is reduced after each iteration"
     source_coords:
       type: "List[int]"
       description: "two coords of source"
