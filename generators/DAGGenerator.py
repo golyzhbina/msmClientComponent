@@ -1,6 +1,7 @@
 from .Generator import Generator
 from collections import OrderedDict
 import yaml
+from pathlib import Path
 
 class OrderedDumper(yaml.Dumper):
         pass
@@ -32,13 +33,14 @@ class DAGGenerator(Generator):
         ):
 
         dag = {dag_id: OrderedDict()}
-        dag["params"] = {}
-        dag["params"]["home_dir"] = home_dir
+        
         dag[dag_id]["schedule_interval"] = schedule_interval
         dag[dag_id]["default_args"] = {
             "owner" : owner,
             "start_date" : start_date
         }
+        dag[dag_id]["params"] = {}
+        dag[dag_id]["params"]["home_dir"] = home_dir
         dag[dag_id]["tags"] = tags
         dag[dag_id]["tasks"] = OrderedDict()
 
@@ -57,6 +59,27 @@ class DAGGenerator(Generator):
         with open(filename, "w") as f:
             yaml.dump(dag, f, OrderedDumper, default_flow_style=False, allow_unicode=True)
 
+    def get_py_file(
+            self,
+            path_to_dags: str,
+            dag_yaml_name: str
+    ):
+        path_to_py = Path(path_to_dags) / Path(f"{dag_yaml_name}.py")
+        path_to_yaml = Path(path_to_dags) / Path(f"{dag_yaml_name}.yaml")
+        code = \
+        f"""
+import dagfactory
+
+config_file = \"{path_to_yaml}\"
+example_dag_factory = dagfactory.DagFactory(config_file)
+example_dag_factory.clean_dags(globals())
+example_dag_factory.generate_dags(globals())
+        """
+
+        with open(path_to_py, "w") as f:
+            f.write(code)
+
+
     @staticmethod
     def get_common_params():
         return [
@@ -65,13 +88,6 @@ class DAGGenerator(Generator):
                     "type": "str",
                     "description" : "path to airflow dags",
                     "default" : "/home/golub/airflow/dags"
-                },
-
-                {
-                    "name": 'home_dir',
-                    "type" : "str", 
-                    "description": "path for out files",
-                    "default" : "/home/golub/msm/data/out"
                 },
 
                 {   
