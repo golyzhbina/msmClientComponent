@@ -158,7 +158,7 @@ example_dag_factory.generate_dags(globals())
                 
                 {   
                     "name" : "use parallelism",
-                    "type": "boll",
+                    "type": "bool",
                     "description" : "",
                     "default" : False
                 },

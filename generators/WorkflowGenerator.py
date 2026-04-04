@@ -296,7 +296,7 @@ class WorkflowGenerator(Generator):
 
             {   
                 "name" : "use parallelism",
-                "type": "boll",
+                "type": "bool",
                 "description" : "",
                 "default" : False
             }
