@@ -1,5 +1,5 @@
-load_veldata:
-  func_path: "msm_dags_ops.vel_data_ops_wrappers.get_depths_and_speeds_helper"
+load_vel:
+  scalar_wrapper: "msm_dags_ops.vel_data_ops_wrappers.get_vel_helper"
   description: "reads a one-dimensional NPY-array of velocities and create regular array of depths from -len(vel) * step to 0 with specifed step"
   variables:
     filename:
@@ -9,9 +9,18 @@ load_veldata:
     step:
       description: "step by depths"
       type: "int"
+  
+load_vel_with_deps:
+  scalar_wrapper: "msm_dags_ops.vel_data_ops_wrappers.get_vel_with_deps_helper"
+  description: ""
+  variables:
+    filename:
+      name: "veldata_path"
+      description: "path to npy-array with speeds and depths"
+      type: "str"
     
 read_recs:
-  func_path: "msm_dags_ops.rec_coords_ops_wrappers.read_coords_helper"
+  scalar_wrapper: "msm_dags_ops.rec_coords_ops_wrappers.read_coords_helper"
   description: "read receivers coordinates"
   variables:
     rec_coords_path:
@@ -20,7 +29,7 @@ read_recs:
       type: "str"
 
 get_coords_on_net:
-  func_path: "msm_dags_ops.rec_coords_ops_wrappers.get_coords_on_net_helper"
+  scalar_wrapper: "msm_dags_ops.rec_coords_ops_wrappers.get_coords_on_net_helper"
   description: "determines the position of receivers on the source grid"
   variables:
     rec_coords_path:
@@ -33,7 +42,7 @@ get_coords_on_net:
       type: "str"
 
 create_region:
-  func_path: "msm_dags_ops.region_ops_wrappers.create_region_helper"
+  scalar_wrapper: "msm_dags_ops.region_ops_wrappers.create_region_helper"
   description: "creates a list of sources on the specified grid with the specified step"
   variables:
     net_coords: 
@@ -44,7 +53,7 @@ create_region:
       type: "int"
 
 get_velmodel:
-  func_path: "msm_dags_ops.model_ops_wrappers.create_model_helper"
+  scalar_wrapper: "msm_dags_ops.model_ops_wrappers.create_model_helper"
   description: "creates a two-dimensional velocity model, the first axis is depth, the second is distance from X1, Y1"
   variables:
     depths_vel_path:
@@ -63,7 +72,7 @@ get_velmodel:
       type: "int"
 
 solve_eikonal:
-  func_path: "msm_dags_ops.esolve_wrappers.solve_helper"
+  scalar_wrapper: "msm_dags_ops.esolve_wrappers.solve_helper"
   description: "solve eikonal equation"
   variables:
     model_path:
@@ -75,7 +84,7 @@ solve_eikonal:
       description: "calibration explosion depth"
 
 get_travel_time:
-  func_path: "msm_dags_ops.tt_wrappers.get_times_as_inds_with_vel_model_helper"
+  scalar_wrapper: "msm_dags_ops.tt_wrappers.get_times_as_inds_with_vel_model_helper"
   description: "obtaining an array of travel times from each receiver to each source based on the solution of the eikonal equation"
   variables:
     esolve_path:
@@ -91,8 +100,9 @@ get_travel_time:
       type: "int"
 
 read_traces:
-  func_path: "msm_dags_ops.traces_ops_wrappers.read_traces_helper"
-  description: ""
+  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.read_traces_helper"
+  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.read_traces_par_helper"
+  description: "read data from SGY file"
   variables:
     filename:
       name: "traces_path"
@@ -105,8 +115,8 @@ read_traces:
   expand: "filename"
 
 get_stat_corrs:
-  func_path: "msm_dags_ops.stat_cors_wrappers.get_stats_helper"
-  description: ""
+  scalar_wrapper: "msm_dags_ops.stat_cors_wrappers.get_stats_helper"
+  description: "get static corrections"
   variables:
     traces_path: 
       name: "traces_for_stat_corrs"
@@ -119,7 +129,7 @@ get_stat_corrs:
     travel_time_path:
       type: "str"
       description: "path to travel time object"
-      name: "travel_time"
+      name: "travel_time_without_sc"
     window_size:
       type: "i32"
       decription: "max corrections"
@@ -140,20 +150,21 @@ get_stat_corrs:
       description: "two coords of source"
 
 apply_stat_corrs:
-  func_path: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
+  scalar_wrapper: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
   description: ""
   variables:
-    traces_path: 
-      name: "traces_without_stat_corrs"
+    travel_time_path: 
+      name: "travel_time_without_sc"
       type: "str"
-      description: "path to traces obj"
+      description: "path to travel time obj"
     stat_cors_path:
       name: "stat_corrs"
       type: "str"
       description: "path to stat corrs obj"
 
 hilb_filtration:
-  func_path: "msm_dags_ops.traces_ops_wrappers.hilb_filter_traces_helper"
+  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.hilb_filter_traces_helper"
+  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.hilb_filter_traces_par_helper"
   description: ""
   variables:
     traces_path:
@@ -163,7 +174,8 @@ hilb_filtration:
   expand: "traces_path"
 
 abs_filtration:
-  func_path: "msm_dags_ops.traces_ops_wrappers.abs_filter_traces_helper"
+  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.abs_filter_traces_helper"
+  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.abs_filter_traces_par_helper"
   description: ""
   variables:
     traces_path:
@@ -173,7 +185,8 @@ abs_filtration:
   expand: "traces_path"
 
 frequency_filtration:
-  func_path: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_helper"
+  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_helper"
+  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_par_helper"
   description: ""
   variables:
     traces_path:
@@ -183,7 +196,8 @@ frequency_filtration:
   expand: "traces_path"
 
 merge_traces:
-  func_path: "msm_dags_ops.traces_ops_wrappers.merge_traces_helper"
+  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.merge_traces_helper"
+  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.merge_traces_par_helper"
   description: ""
   variables:
     traces1_path:
@@ -196,9 +210,11 @@ merge_traces:
     part_size:
       type: "int"
       description: "number of loaded traces"
+    expand: traces1_path
 
 get_cube:
-  func_path: "msm_dags_ops.get_cube_wrappers.get_cube_helper"
+  scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_helper"
+  parallel_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_par_helper"
   description: "coherent summation"
   variables:
     traces_path:
@@ -219,7 +235,8 @@ get_cube:
   expand: traces_path
 
 get_cube_with_tensor:
-  func_path: "msm_dags_ops.get_cube_wrappers.get_cube_with_tm_helper"
+  scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_with_tm_helper"
+  parallel_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_with_tm_par_helper"
   description: "coherent summation with tensor moment"
   variables:
     traces_path:
@@ -236,7 +253,8 @@ get_cube_with_tensor:
       description: ""
 
 get_cumsum:
-  func_path: "msm_dags_ops.get_cube_wrappers.get_cumsum_helper"
+  scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cumsum_helper"
+  parallel_wrapper: "msm_dags_ops.get_cube_wrappers.get_cumsum_par_helper"
   description: "cumulative summation with a window of kernel_size"
   variables:
     cube_path:
@@ -250,9 +268,11 @@ get_cumsum:
       type: bool
       default: false
       description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
+  expand: cube_path
 
 get_slice:
-  func_path: "msm_dags_ops.result_interpret_wrappers.get_slice_helper"
+  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.get_slice_helper"
+  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.get_slice_par_helper"
   description: "constructs slices of a cube by time at its maxima"
   variables:
     cube_path:
@@ -271,9 +291,11 @@ get_slice:
       name: "rec_coords_on_net"
       description: "path to receivers coords obj"
       type: "str"
+  expnad: cube_path
 
 get_detect_function:
-  func_path: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
+  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
+  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.get_df_par_helper"
   description: "obtains maximum cube values ​​along the time axis"
   variables:
     cube_path:
@@ -286,7 +308,8 @@ get_detect_function:
   expand: cube_path
 
 plot_detect_function:
-  func_path: "msm_dags_ops.result_interpret_wrappers.plot_df_helper"
+  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.plot_df_helper"
+  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.plot_df_par_helper"
   description: "plot detect func"
   variables:
     detect_function_path:
@@ -299,7 +322,8 @@ plot_detect_function:
   expand: detect_function_path
 
 get_maxes:
-  func_path: "msm_dags_ops.max_processing_wrapers.get_maxes_helper"
+  scalar_wrapper: "msm_dags_ops.max_processing_wrapers.get_maxes_helper"
+  parallel_wrapper: "msm_dags_ops.max_processing_wrapers.get_maxes_par_helper"
   description: ""
   variables:
     cube_path:
@@ -314,9 +338,11 @@ get_maxes:
       name: "region"
       description: ""
       type: "str"
+  expand: cube_path
 
 filter_maxes:
-  func_path: "msm_dags_ops.max_processing_wrapers.filter_maxes_helper"
+  scalar_wrapper: "msm_dags_ops.max_processing_wrapers.filter_maxes_helper"
+  parallel_wrapper: "msm_dags_ops.max_processing_wrapers.filter_maxes_par_helper"
   description: ""
   variables:
     maxes_path:
@@ -332,9 +358,11 @@ filter_maxes:
     kernel_size:
       description: ""
       type: "float"
+  expand: maxes_path
 
 draw_maxes_at_detect_function:
-  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"
+  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"
+  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_par_helper"
   description: ""
   variables:
     maxes_path:
@@ -345,9 +373,11 @@ draw_maxes_at_detect_function:
       name: "detect_function"
       description: "path to detect_function object"
       type: str
+  expand: maxes_path
 
 draw_tt_at_traces:
-  func_path: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_helper"
+  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_helper"
+  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_par_helper"
   description: ""
   variables:
     maxes_path:
@@ -377,10 +407,10 @@ draw_tt_at_traces:
       type: "float"
       description: "vmax of plt.imshow()"
       default: None
+  expand: traces_path
 
-    
 draw_maxes_at_timeline:
-  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_timeline_helper"
+  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_timeline_helper"
   description: "plot maxes at timeline"
   variables:
     maxes_list_path:
@@ -389,7 +419,7 @@ draw_maxes_at_timeline:
       description: "path to maxes object"
 
 draw_maxes_at_square:
-  func_path: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_square_helper"
+  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_square_helper"
   description: "plot maxes at source region"
   variables:
     maxes_list_path:

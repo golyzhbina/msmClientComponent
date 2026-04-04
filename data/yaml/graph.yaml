@@ -31,7 +31,10 @@ graph:
     rec_coords_on_net:
       class:
         - rec_coords_on_net
-    travel_time:
+    travel_time_without_sc:
+      class:
+        - travel_time
+    travel_time_with_sc:
       class:
         - travel_time
     traces_path:
@@ -43,25 +46,18 @@ graph:
     merged_traces:
       class:
         - traces
-        - traces_without_stat_corrs
     freq_traces:
       class:
         - filtered_traces
-        - traces_without_stat_corrs
     abs_traces:
       class:
         - filtered_traces
-        - traces_without_stat_corrs
     hilb_traces:
       class:
         - filtered_traces
-        - traces_without_stat_corrs
     stat_corrs:
       class:
        - stat_corrs
-    traces_with_sc:
-      class:
-        - filtered_traces
     traces_for_stat_corrs:
       class:
         - traces_for_stat_corrs
@@ -108,8 +104,17 @@ graph:
         - chart_maxes_at_square
 
   operations:
-    load_veldata:
-      class: load_veldata
+    load_vel:
+      class: load_vel
+      characters:
+        diff: 1
+      inputs:
+        veldata_path: name
+      outputs:
+        - veldata
+
+    load_vel_with_deps:
+      class: load_vel_with_deps
       characters:
         diff: 1
       inputs:
@@ -173,7 +178,7 @@ graph:
         eikonal_solve: name
         rec_coords_on_net: name
       outputs:
-        - travel_time
+        - travel_time_without_sc
     
     read_traces:
       class: read_traces
@@ -227,7 +232,7 @@ graph:
       inputs:
         traces_for_stat_corrs: name
         region: name
-        travel_time: name
+        travel_time_without_sc: name
       outputs:
         - stat_corrs
       
@@ -237,17 +242,17 @@ graph:
       characters:
         diff: 1
       inputs:
+        travel_time_without_sc: name
         stat_corrs: name
-        traces_without_stat_corrs: class
       outputs:
-        - traces_with_sc
+        - travel_time_with_sc
 
     get_cube:
       class: get_cube
       characters:
         diff: 1
       inputs:
-        travel_time: name
+        travel_time: class
         filtered_traces: class
         region: name
       outputs:
@@ -302,7 +307,6 @@ graph:
         raw_maxes: name
       outputs:
         - filtered_maxes
-      
     
     get_slice:
       class: get_slice
@@ -364,7 +368,3 @@ graph:
         maxes: class
       outputs:
         - chart_maxes_at_square
-
-        
-
-    

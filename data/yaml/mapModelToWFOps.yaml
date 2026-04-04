@@ -1,7 +1,7 @@
-load_veldata:
+load_vel:
   type: "map"
-  declaration_url: "ops/parsing_load_veldata/declaration.toml"
-  ops_path: parsing_load_veldata 
+  declaration_url: "ops/parsing_load_vel/declaration.toml"
+  ops_path: parsing_load_vel 
   description: "reads a one-dimensional NPY-array of velocities and create regular array of depths from -len(vel) * step to 0 with specifed step"
   variables:
     veldata_path:
@@ -11,6 +11,17 @@ load_veldata:
     step_by_depth:
       description: "step by depths"
       type: "i32"
+
+load_vel_with_deps:
+  type: "map"
+  declaration_url: "ops/parsing_load_vel_with_deps/declaration.toml"
+  ops_path: parsing_load_vel_with_deps 
+  description: ""
+  variables:
+    veldata_path:
+      name: "veldata_path"
+      description: "path to npy-array with speeds and depths"
+      type: "str"
     
 read_recs:
   type: "map"
@@ -135,7 +146,7 @@ get_stat_corrs:
     travel_time_path:
       type: "str"
       description: "path to travel time object"
-      name: "travel_time"
+      name: "travel_time_without_sc"
     window_size:
       type: "i32"
       decription: "max corrections"
@@ -163,10 +174,10 @@ apply_stat_corrs:
   func_path: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
   description: ""
   variables:
-    traces_path: 
-      name: "traces_without_stat_corrs"
+    travel_time_path: 
+      name: "travel_time_without_sc"
       type: "str"
-      description: "path to traces obj"
+      description: "path to travel time obj"
     stat_cors_path:
       name: "stat_corrs"
       type: "str"
@@ -243,9 +254,9 @@ get_cube:
       name: "region"
       description: "path to region object"
       type: "str"
-    time_interval:
+    time_i32erval:
       type: "[i32]"
-      description: "summation time interval"
+      description: "summation time i32erval"
   expand: traces_path
 
 get_cube_with_tensor:
@@ -270,7 +281,7 @@ get_cube_with_tensor:
       name: "tensor"
       description: ""
       type: "[i32]"
-    time_interval:
+    time_i32erval:
       type: "[i32]"
       description: "summation time i32erval"
 
@@ -294,8 +305,8 @@ get_cumsum:
 
 get_slice:
   type: "map"
-  declaration_url: "ops/interpret_get_slices/declaration.toml"
-  ops_path: interpret_get_slices
+  declaration_url: "ops/i32erpret_get_slices/declaration.toml"
+  ops_path: i32erpret_get_slices
   description: "constructs slices of a cube by time at its maxima"
   variables:
     cube_path:
@@ -317,23 +328,23 @@ get_slice:
 
 get_detect_function:
   type: "map"
-  declaration_url: "ops/interpret_get_detect_func/declaration.toml"
-  ops_path: interpret_get_detect_func
+  declaration_url: "ops/i32erpret_get_detect_func/declaration.toml"
+  ops_path: i32erpret_get_detect_func
   description: "obtains maximum cube values ​​along the time axis"
   variables:
     cube_path:
       name: "cube"
       description: "path to cube object"
       type: str
-    time_interval:
+    time_i32erval:
       description: ""
       type: "[i32]"
   expand: cube_path
 
 plot_detect_function:
   type: "map"
-  declaration_url: "ops/interpret_plot_detect_func/declaration.toml"
-  ops_path: interpret_plot_detect_func
+  declaration_url: "ops/i32erpret_plot_detect_func/declaration.toml"
+  ops_path: i32erpret_plot_detect_func
   description: "plot detect func"
   variables:
     detect_function_path:
@@ -387,8 +398,8 @@ filter_maxes:
 
 draw_maxes_at_detect_function:
   type: "map"
-  declaration_url: "ops/interpret_draw_maxes_at_df/declaration.toml"
-  ops_path: interpret_draw_maxes_at_df
+  declaration_url: "ops/i32erpret_draw_maxes_at_df/declaration.toml"
+  ops_path: i32erpret_draw_maxes_at_df
   description: ""
   variables:
     maxes_path:
@@ -402,8 +413,8 @@ draw_maxes_at_detect_function:
 
 draw_tt_at_traces:
   type: "map"
-  declaration_url: "ops/interpret_draw_tt_at_traces/declaration.toml"
-  ops_path: interpret_draw_tt_at_traces
+  declaration_url: "ops/i32erpret_draw_tt_at_traces/declaration.toml"
+  ops_path: i32erpret_draw_tt_at_traces
   description: ""
   variables:
     maxes_path:
@@ -437,8 +448,8 @@ draw_tt_at_traces:
     
 draw_maxes_at_timeline:
   type: "map"
-  declaration_url: "ops/interpret_draw_all_maxes_at_timeline/declaration.toml"
-  ops_path: interpret_draw_all_maxes_at_timeline
+  declaration_url: "ops/i32erpret_draw_all_maxes_at_timeline/declaration.toml"
+  ops_path: i32erpret_draw_all_maxes_at_timeline
   description: "plot maxes at timeline"
   variables:
     maxes_list_path:
@@ -448,8 +459,8 @@ draw_maxes_at_timeline:
 
 draw_maxes_at_square:
   type: "map"
-  declaration_url: "ops/interpret_draw_all_maxes_at_square/declaration.toml"
-  ops_path: interpret_draw_all_maxes_at_square
+  declaration_url: "ops/i32erpret_draw_all_maxes_at_square/declaration.toml"
+  ops_path: i32erpret_draw_all_maxes_at_square
   description: "plot maxes at source region"
   variables:
     maxes_list_path:
