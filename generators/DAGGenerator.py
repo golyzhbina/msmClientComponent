@@ -154,12 +154,5 @@ example_dag_factory.generate_dags(globals())
                     "type" : "List[str]",
                     "descrtption" : "еnter tags separated by commas",
                     "default" : "msm"
-                },
-                
-                {   
-                    "name" : "use parallelism",
-                    "type": "bool",
-                    "description" : "",
-                    "default" : False
-                },
+                }
             ]

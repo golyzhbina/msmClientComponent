@@ -292,13 +292,6 @@ class WorkflowGenerator(Generator):
                 "type": "str",
                 "description": 'format: dd-hh:mm:ss',
                 "default" : "00-00:30:00"
-            },
-
-            {   
-                "name" : "use parallelism",
-                "type": "bool",
-                "description" : "",
-                "default" : False
             }
         ]
     
