@@ -1,5 +1,11 @@
 load_vel:
-  scalar_wrapper: "msm_dags_ops.vel_data_ops_wrappers.get_vel_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.vel_data_ops_wrappers.get_vel_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: parsing_load_vel 
+
   description: "reads a one-dimensional NPY-array of velocities and create regular array of depths from -len(vel) * step to 0 with specifed step"
   variables:
     filename:
@@ -10,8 +16,15 @@ load_vel:
       description: "step by depths"
       type: "int"
   
+
 load_vel_with_deps:
-  scalar_wrapper: "msm_dags_ops.vel_data_ops_wrappers.get_vel_with_deps_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.vel_data_ops_wrappers.get_vel_with_deps_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: parsing_load_vel_with_deps
+
   description: ""
   variables:
     filename:
@@ -19,8 +32,15 @@ load_vel_with_deps:
       description: "path to npy-array with speeds and depths"
       type: "str"
     
+
 read_recs:
-  scalar_wrapper: "msm_dags_ops.rec_coords_ops_wrappers.read_coords_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.rec_coords_ops_wrappers.read_coords_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: parsing_read_rec_coords
+  
   description: "read receivers coordinates"
   variables:
     rec_coords_path:
@@ -28,8 +48,15 @@ read_recs:
       description: ""
       type: "str"
 
+
 get_coords_on_net:
-  scalar_wrapper: "msm_dags_ops.rec_coords_ops_wrappers.get_coords_on_net_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.rec_coords_ops_wrappers.get_coords_on_net_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: parsing_get_coords_on_net
+
   description: "determines the position of receivers on the source grid"
   variables:
     rec_coords_path:
@@ -41,8 +68,15 @@ get_coords_on_net:
       description: "path to region object"
       type: "str"
 
+
 create_region:
-  scalar_wrapper: "msm_dags_ops.region_ops_wrappers.create_region_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.region_ops_wrappers.create_region_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: region_create_region
+
   description: "creates a list of sources on the specified grid with the specified step"
   variables:
     net_coords: 
@@ -52,8 +86,15 @@ create_region:
     step:
       type: "int"
 
+
 get_velmodel:
-  scalar_wrapper: "msm_dags_ops.model_ops_wrappers.create_model_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.model_ops_wrappers.create_model_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: model_get_velmodel
+
   description: "creates a two-dimensional velocity model, the first axis is depth, the second is distance from X1, Y1"
   variables:
     depths_vel_path:
@@ -71,8 +112,15 @@ get_velmodel:
     step: 
       type: "int"
 
+
 solve_eikonal:
-  scalar_wrapper: "msm_dags_ops.esolve_wrappers.solve_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.esolve_wrappers.solve_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: tt_solve_eikonal
+
   description: "solve eikonal equation"
   variables:
     model_path:
@@ -83,8 +131,15 @@ solve_eikonal:
       type: "int"
       description: "calibration explosion depth"
 
+
 get_travel_time:
-  scalar_wrapper: "msm_dags_ops.tt_wrappers.get_times_as_inds_with_vel_model_helper"
+
+  airflow:
+    scalar_wrapp er: "msm_dags_ops.tt_wrappers.get_times_as_inds_with_vel_model_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: tt_get_travel_time
+  
   description: "obtaining an array of travel times from each receiver to each source based on the solution of the eikonal equation"
   variables:
     esolve_path:
@@ -99,9 +154,16 @@ get_travel_time:
       description: "trace sampling frequency in milliseconds"
       type: "int"
 
+
 read_traces:
-  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.read_traces_helper"
-  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.read_traces_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.read_traces_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: traces_read_traces
+    scalar_wrapper: traces_read_traces
+
   description: "read data from SGY file"
   variables:
     filename:
@@ -114,8 +176,15 @@ read_traces:
       description: "if the value is True, then each trace is normalized to the maximum value"
   expand: "filename"
 
+
 get_stat_corrs:
-  scalar_wrapper: "msm_dags_ops.stat_cors_wrappers.get_stats_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.stat_cors_wrappers.get_stats_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: stat_corrs_get_stat_corrs
+
   description: "get static corrections"
   variables:
     traces_path: 
@@ -149,8 +218,15 @@ get_stat_corrs:
       type: "List[int]"
       description: "two coords of source"
 
+
 apply_stat_corrs:
-  scalar_wrapper: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.stat_cors_wrappers.apply_stat_cors_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: stat_corrs_add_static_correction
+
   description: ""
   variables:
     travel_time_path: 
@@ -162,9 +238,16 @@ apply_stat_corrs:
       type: "str"
       description: "path to stat corrs obj"
 
+
 hilb_filtration:
-  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.hilb_filter_traces_helper"
-  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.hilb_filter_traces_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.hilb_filter_traces_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: traces_hilb_filtration
+    scalar_wrapper: traces_hilb_filtration
+
   description: ""
   variables:
     traces_path:
@@ -172,10 +255,17 @@ hilb_filtration:
       type: "str"
       description: "path to traces obj"
   expand: "traces_path"
+
 
 abs_filtration:
-  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.abs_filter_traces_helper"
-  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.abs_filter_traces_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.abs_filter_traces_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: traces_abs_filtration
+    scalar_wrapper: traces_abs_filtration
+
   description: ""
   variables:
     traces_path:
@@ -183,10 +273,17 @@ abs_filtration:
       type: "str"
       description: "path to traces obj"
   expand: "traces_path"
+
 
 frequency_filtration:
-  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_helper"
-  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.freq_filter_traces_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: traces_frequency_filtration
+    scalar_wrapper: traces_frequency_filtration
+
   description: ""
   variables:
     traces_path:
@@ -195,9 +292,15 @@ frequency_filtration:
       description: "path to traces obj"
   expand: "traces_path"
 
+
 merge_traces:
-  scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.merge_traces_helper"
-  parallel_wrapper: "msm_dags_ops.traces_ops_wrappers.merge_traces_par_helper"
+  airflow:
+    scalar_wrapper: "msm_dags_ops.traces_ops_wrappers.merge_traces_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: traces_merge_traces
+    scalar_wrapper: traces_merge_traces
+
   description: ""
   variables:
     traces1_path:
@@ -212,9 +315,16 @@ merge_traces:
       description: "number of loaded traces"
     expand: traces1_path
 
+
 get_cube:
-  scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_helper"
-  parallel_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: cube_get_cube
+    scalar_wrapper: cube_get_cube
+
   description: "coherent summation"
   variables:
     traces_path:
@@ -234,9 +344,16 @@ get_cube:
       description: "summation time interval"
   expand: traces_path
 
+
 get_cube_with_tensor:
-  scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_with_tm_helper"
-  parallel_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_with_tm_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cube_with_tm_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: cube_get_cube_with_tm
+    scalar_wrapper: cube_get_cube_with_tm
+
   description: "coherent summation with tensor moment"
   variables:
     traces_path:
@@ -252,9 +369,16 @@ get_cube_with_tensor:
       name: "tensor"
       description: ""
 
+
 get_cumsum:
-  scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cumsum_helper"
-  parallel_wrapper: "msm_dags_ops.get_cube_wrappers.get_cumsum_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.get_cube_wrappers.get_cumsum_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: cube_get_cumsum
+    scalar_wrapper: cube_get_cumsum
+
   description: "cumulative summation with a window of kernel_size"
   variables:
     cube_path:
@@ -270,9 +394,16 @@ get_cumsum:
       description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
   expand: cube_path
 
+
 get_slice:
-  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.get_slice_helper"
-  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.get_slice_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.get_slice_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: interpret_get_slices
+    scalar_wrapper: interpret_get_slices
+
   description: "constructs slices of a cube by time at its maxima"
   variables:
     cube_path:
@@ -293,9 +424,16 @@ get_slice:
       type: "str"
   expnad: cube_path
 
+
 get_detect_function:
-  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
-  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.get_df_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
+  execucre:
+    type: "map"
+    scalar_wrapper: interpret_get_detect_func
+    scalar_wrapper: interpret_get_detect_func
+
   description: "obtains maximum cube values ​​along the time axis"
   variables:
     cube_path:
@@ -307,9 +445,16 @@ get_detect_function:
       type: "[i32]"
   expand: cube_path
 
+
 plot_detect_function:
-  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.plot_df_helper"
-  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.plot_df_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.plot_df_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: interpret_plot_detect_func
+    scalar_wrapper: interpret_plot_detect_func
+
   description: "plot detect func"
   variables:
     detect_function_path:
@@ -321,9 +466,16 @@ plot_detect_function:
       description: "maximum threshold value"
   expand: detect_function_path
 
+
 get_maxes:
-  scalar_wrapper: "msm_dags_ops.max_processing_wrapers.get_maxes_helper"
-  parallel_wrapper: "msm_dags_ops.max_processing_wrapers.get_maxes_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.max_processing_wrapers.get_maxes_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: maxes_find_maxes
+    scalar_wrapper: maxes_find_maxes
+
   description: ""
   variables:
     cube_path:
@@ -340,9 +492,16 @@ get_maxes:
       type: "str"
   expand: cube_path
 
+
 filter_maxes:
-  scalar_wrapper: "msm_dags_ops.max_processing_wrapers.filter_maxes_helper"
-  parallel_wrapper: "msm_dags_ops.max_processing_wrapers.filter_maxes_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.max_processing_wrapers.filter_maxes_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: maxes_filtered_maxes
+    scalar_wrapper: maxes_filtered_maxes
+
   description: ""
   variables:
     maxes_path:
@@ -360,9 +519,16 @@ filter_maxes:
       type: "float"
   expand: maxes_path
 
+
 draw_maxes_at_detect_function:
-  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"
-  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_df_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: interpret_draw_maxes_at_df
+    scalar_wrapper: interpret_draw_maxes_at_df
+
   description: ""
   variables:
     maxes_path:
@@ -375,9 +541,16 @@ draw_maxes_at_detect_function:
       type: str
   expand: maxes_path
 
+
 draw_tt_at_traces:
-  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_helper"
-  parallel_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_par_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: interpret_draw_tt_at_traces
+    scalar_wrapper: interpret_draw_tt_at_traces
+
   description: ""
   variables:
     maxes_path:
@@ -409,8 +582,15 @@ draw_tt_at_traces:
       default: None
   expand: traces_path
 
+
 draw_maxes_at_timeline:
-  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_timeline_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_timeline_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: interpret_draw_all_maxes_at_timeline
+
   description: "plot maxes at timeline"
   variables:
     maxes_list_path:
@@ -418,8 +598,15 @@ draw_maxes_at_timeline:
       name: "maxes"
       description: "path to maxes object"
 
+
 draw_maxes_at_square:
-  scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_square_helper"
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_maxes_at_square_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: interpret_draw_all_maxes_at_square
+
   description: "plot maxes at source region"
   variables:
     maxes_list_path:

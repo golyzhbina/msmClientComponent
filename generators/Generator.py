@@ -5,11 +5,12 @@ class Generator:
     map_cm_to_code: dict = None
     subgraph: OrderedDict = None
 
-    def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict):
+    def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict, use_parallelism = False):
         
         with open(filename, "r") as f:
             self.map_cm_to_code = yaml.safe_load(f)
 
+        self.use_parallelism = use_parallelism
         self.subgraph: OrderedDict = subgraph
         self.variables: dict = reversed_subgraph
     
@@ -26,6 +27,9 @@ class Generator:
 
                 if var_id  in added_vars:
                     continue
+
+                if self.use_parallelism and v_name == map_info.get("expand"):
+                    v_info["type"] = f"List[{v_info['type']}]"
 
                 if map_name in self.variables and \
                    len(self.variables[map_name]["output_from"]) == 0  or \

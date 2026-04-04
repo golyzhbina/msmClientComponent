@@ -6,11 +6,26 @@ from pathlib import Path
 
 class WorkflowGenerator(Generator):
     def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict, use_parallelism: bool = False):
-        super().__init__(filename, subgraph, reversed_subgraph)
+        super().__init__(filename, subgraph, reversed_subgraph, use_parallelism)
         self.use_parallelism = use_parallelism
     
     def __get_toml_name(self, op, var):
         return f"{op}__{var}"
+    
+    def __map_type(self, t):
+        type_map = {
+            "int" : "i32",
+            "float" : "f32",
+            "double" : "f64",
+            "str" : "str",
+            "bool" : "bool",
+            "List[int]" : "[i32]",
+            "List[float]" : "[f32]",
+            "List[double]" : "[f64]",
+            "List[str]" : "[str]",
+            "List[bool]" : "[bool]"
+        }
+        return type_map[t]
 
     def get_declaration_file(
         self,
@@ -69,7 +84,14 @@ class WorkflowGenerator(Generator):
         
         for op in self.subgraph:
             for var, data in self.map_cm_to_code[op]["variables"].items():
-                var_descr = {"type": data["type"]}
+
+                if self.use_parallelism and self.map_cm_to_code[op].get("expand") == var:
+                    var_descr = \
+                        {"type": self.__map_type(f'List[{data["type"]}]')}
+                else:  
+                    var_descr = \
+                        {"type": self.__map_type(data["type"])}
+                    
                 v_name = self.__get_toml_name(op, var)
                 v_name = unique_variables_map.get(v_name, v_name)
                 var_id = data.get("name", Generator.get_var_id(op, var))
@@ -79,7 +101,14 @@ class WorkflowGenerator(Generator):
                 workflow_declaration_dict["variables"][v_name] = var_descr
             
             for var in self.subgraph[op][1]:
-                var_descr = {"type": data["type"]}
+                
+                if self.use_parallelism and self.map_cm_to_code[op].get("expand") == var:
+                    var_descr = \
+                        {"type": self.__map_type(f'List[{data["type"]}]')}
+                else:  
+                    var_descr = \
+                        {"type": self.__map_type(data["type"])}
+                    
                 v_name = self.__get_toml_name(op, var)
                 v_name = unique_variables_map.get(v_name, v_name)
                 workflow_declaration_dict["variables"][v_name] = var_descr
@@ -98,11 +127,18 @@ class WorkflowGenerator(Generator):
 
             unique_variables_map[self.__get_toml_name(op, "out")] = op_outputs[0]
 
-            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]] = OrderedDict()
-            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["type"] = self.map_cm_to_code[op]["type"]
-            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["declaration_url"] = f'{path_to_ops}/{self.map_cm_to_code[op]["declaration_url"]}'
-            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["inputs"] = op_inputs
-            workflow_declaration_dict["operations"][self.map_cm_to_code[op]["ops_path"]]["outputs"] = op_outputs
+            op_wrapper = self.map_cm_to_code[op]["execucore"]["scalar_wrapper"]
+            if self.use_parallelism and self.map_cm_to_code[op]["execucore"].get("parallel_wrapper"):
+                op_wrapper = self.map_cm_to_code[op]["execucore"]["parallel_wrapper"]
+
+            workflow_declaration_dict["operations"][op_wrapper] = OrderedDict()
+            workflow_declaration_dict["operations"][op_wrapper]["type"] = self.map_cm_to_code[op]["execucore"]["type"]
+
+            workflow_declaration_dict["operations"][op_wrapper]["declaration_url"] = \
+                f'{path_to_ops}/ops/{op_wrapper}/declaration.toml'
+
+            workflow_declaration_dict["operations"][op_wrapper]["inputs"] = op_inputs
+            workflow_declaration_dict["operations"][op_wrapper]["outputs"] = op_outputs
         
 
         with open(path_to_declaration / "declaration.toml", "w") as toml_file:
@@ -256,6 +292,13 @@ class WorkflowGenerator(Generator):
                 "type": "str",
                 "description": 'format: dd-hh:mm:ss',
                 "default" : "00-00:30:00"
+            },
+
+            {   
+                "name" : "use parallelism",
+                "type": "boll",
+                "description" : "",
+                "default" : False
             }
         ]
     

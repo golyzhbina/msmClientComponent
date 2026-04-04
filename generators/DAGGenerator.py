@@ -16,8 +16,15 @@ OrderedDumper.add_representer(OrderedDict, _dict_representer)
 class DAGGenerator(Generator):
 
     def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict, use_parallelism: bool = False):
-        super().__init__(filename, subgraph, reversed_subgraph)
+        super().__init__(filename, subgraph, reversed_subgraph, use_parallelism)
         self.use_parallelism = use_parallelism
+
+    def __get_var_value(self, inputs, op, var):
+        var_id = self.map_cm_to_code[op]["variables"][var].get("name", Generator.get_var_id(op, var))
+        if var_id in inputs:
+            return inputs[var_id]
+        else:
+            return "+" + self.variables[var_id]["output_from"][0]
 
 
     def get_declaration_file(
@@ -47,14 +54,28 @@ class DAGGenerator(Generator):
         for op in self.subgraph:
             dag[dag_id]["tasks"][op] = OrderedDict()
             dag[dag_id]["tasks"][op]["decorator"] = "airflow.decorators.task"
-            dag[dag_id]["tasks"][op]["python_callable"] = self.map_cm_to_code[op]["func_path"]
-            for var in self.map_cm_to_code[op]["variables"]:
-                var_id = self.map_cm_to_code[op]["variables"][var].get("name", Generator.get_var_id(op, var))
-                if var_id in inputs:
-                    dag[dag_id]["tasks"][op][var] = inputs[var_id]
-                else:
-                    dag[dag_id]["tasks"][op][var] = "+" + self.variables[var_id]["output_from"][0]
+            dag[dag_id]["tasks"][op]["python_callable"] = self.map_cm_to_code[op]["airflow"]["scalar_wrapper"]
 
+            if self.use_parallelism and self.map_cm_to_code[op].get("expand"):
+                
+                dag[dag_id]["tasks"][op]["params"] = OrderedDict()
+                dag[dag_id]["tasks"][op]["expand"] = OrderedDict()
+            
+                expand_var = self.map_cm_to_code[op].get("expand")
+
+                for var in self.map_cm_to_code[op]["variables"]:
+                    if var == expand_var:
+                        continue
+                    dag[dag_id]["tasks"][op]["params"][var] = self.__get_var_value(inputs, op, var)
+                
+                dag[dag_id]["tasks"][op]["expand"] = {expand_var: self.__get_var_value(inputs, op, expand_var)}
+
+                if not len(dag[dag_id]["tasks"][op]["params"]):
+                    del dag[dag_id]["tasks"][op]["params"]
+
+            else:
+                for var in self.map_cm_to_code[op]["variables"]:
+                    dag[dag_id]["tasks"][op][var] = self.__get_var_value(inputs, op, var)
 
         with open(filename, "w") as f:
             yaml.dump(dag, f, OrderedDumper, default_flow_style=False, allow_unicode=True)
@@ -133,5 +154,12 @@ example_dag_factory.generate_dags(globals())
                     "type" : "List[str]",
                     "descrtption" : "еnter tags separated by commas",
                     "default" : "msm"
-                }
+                },
+                
+                {   
+                    "name" : "use parallelism",
+                    "type": "boll",
+                    "description" : "",
+                    "default" : False
+                },
             ]

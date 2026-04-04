@@ -1,5 +1,5 @@
 from comp_model.ComputeModel import ComputeModel
-from generators import DAGGenerator, WorkflowGenerator
+from generators import DAGGenerator, WorkflowGenerator, Generator
 
 import os
 from pathlib import Path
@@ -21,12 +21,12 @@ ordered_sg = cm.get_ordered_subgraph(rel_algo)
 ordered_sg = cm.delete_fictive_ops(ordered_sg)
 reversed_rel = cm.get_reversed_relations(ordered_sg)
 
-wf_generator = WorkflowGenerator(path_to_yamls / "mapModelToWFOps.yaml", ordered_sg, reversed_rel)
 inputs = {
-    'traces_path': "/home/golub/msm/data/sgy/SY_seismic_data.sgy", 
+    'traces_path': ["/home/golub/msm/data/sgy/SY_seismic_data.sgy", "/home/golub/msm/data/sgy/SY_seismic_data2.sgy"], 
     'read_traces__normalize': False,
 }
 
+wf_generator = WorkflowGenerator(path_to_yamls / "mapModelToCode.yaml", ordered_sg, reversed_rel, True)
 var_map = wf_generator.get_declaration_file(
     path,
     "/home/golub/execucore_ops/",
@@ -60,7 +60,7 @@ wf_generator.get_application_file(
     var_map
 ) 
 
-dag_generator = DAGGenerator(path_to_yamls / "mapModelToCode.yaml", ordered_sg, reversed_rel)
+dag_generator = DAGGenerator(path_to_yamls / "mapModelToCode.yaml", ordered_sg, reversed_rel, True)
 dag_generator.get_declaration_file(
     "test_dag.yaml",
     inputs, 
