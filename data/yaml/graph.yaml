@@ -7,7 +7,10 @@ graph:
     veldata_path:
       class:
         - veldata_path
-    veldata:
+    veldata_with_regular_depth:
+      class:
+        - veldata
+    veldata_with_irregular_depth:
       class:
         - veldata
     rec_coords_path:
@@ -111,7 +114,7 @@ graph:
       inputs:
         veldata_path: name
       outputs:
-        - veldata
+        - veldata_with_irregular_depth
 
     load_vel_with_deps:
       class: load_vel_with_deps
@@ -120,14 +123,14 @@ graph:
       inputs:
         veldata_path: name
       outputs:
-        - veldata
+        - veldata_with_regular_depth
   
     get_velmodel:
       class: get_velmodel
       characters:
         diff: 1
       inputs:
-        veldata: name
+        veldata: class
         region: name
         rec_coords: name
       outputs:
