@@ -51,16 +51,16 @@ class ComputeModel:
         var_classes: Dict[str, List[str]] = dict()
 
         for var_name, var_descr in graph_dict["variables"].items():
-            nodes[var_name] = Variable(var_name, var_descr["class"])
+            nodes[var_name] = Variable(var_name, var_descr)
 
-            for cl in var_descr["class"]:
+            for cl in var_descr:
                 if not (cl in var_classes):
                     var_classes[cl] = []
 
                 var_classes[cl].append(var_name)
 
         for op_name, op_descr in graph_dict["operations"].items():
-            op = Operation(op_name, op_descr["class"], op_descr["characters"])
+            op = Operation(op_name, op_descr.get("class", op_name), op_descr.get("characters", {}))
             nodes[op_name] = op
 
             inputs = []
