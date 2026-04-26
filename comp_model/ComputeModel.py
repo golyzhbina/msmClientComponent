@@ -62,16 +62,7 @@ class ComputeModel:
         for op_name, op_descr in graph_dict["operations"].items():
             op = Operation(op_name, op_descr.get("class", op_name), op_descr.get("characters", {}))
             nodes[op_name] = op
-
-            inputs = []
-            for var_name, var_descr in op_descr["inputs"].items():
-                inputs.append(var_name)
-
-            outputs = []
-            for var_name in op_descr["outputs"]:
-                outputs.append(var_name)
-
-            relationship[op_name] = [inputs, outputs]
+            relationship[op_name] = [op_descr["inputs"], op_descr["outputs"]]
 
         
         for var_class, var_list in var_classes.items():

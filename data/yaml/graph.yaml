@@ -59,184 +59,184 @@ graph:
   operations:
     load_vel:
       inputs:
-        veldata_path: name
+        - veldata_path
       outputs:
-        - veldata_with_irregular_depth
+        - veldata_with_regular_depth
 
     load_vel_with_deps:
       inputs:
-        veldata_path: name
+        - veldata_path
       outputs:
-        - veldata_with_regular_depth
+        - veldata_with_irregular_depth
   
     get_velmodel:
       inputs:
-        veldata: class
-        region: name
-        rec_coords: name
+        - veldata
+        - region
+        - rec_coords
       outputs:
         - velmodel
     
     read_recs:
       inputs:
-        rec_coords_path: name
+        - rec_coords_path
       outputs:
         - rec_coords
     
     get_coords_on_net:
       inputs:
-        rec_coords: name
-        region: name
+        - rec_coords
+        - region
       outputs:
         - rec_coords_on_net
     
     create_region:
       inputs:
-        region_coords: name
+        - region_coords
       outputs:
         - region
     
     solve_eikonal:
       inputs:
-        velmodel: name
+        - velmodel
       outputs:
         - eikonal_solve
     
     get_travel_time:
       inputs:
-        eikonal_solve: name
-        rec_coords_on_net: name
+        - eikonal_solve
+        - rec_coords_on_net
       outputs:
         - travel_time_without_sc
     
     read_traces:
       inputs:
-        traces_path: name
+        - traces_path
       outputs:
         - raw_traces
 
     merge_traces:
       inputs:
-        raw_traces: name
+        - raw_traces
       outputs:
         - merged_traces
     
     frequency_filtration:
       inputs:
-        traces: class
+        - traces
       outputs:
         - freq_traces
       
     abs_filtration:
       inputs:
-        traces: class
+        - traces
       outputs:
         - abs_traces
 
     hilb_filtration:
       inputs:
-        traces: class
+        - traces
       outputs:
         - hilb_traces
 
     get_stat_corrs:
       inputs:
-        traces_for_stat_corrs: name
-        region: name
-        travel_time_without_sc: name
+        - traces_for_stat_corrs
+        - region
+        - travel_time_without_sc
       outputs:
         - stat_corrs
       
 
     apply_stat_corrs:
       inputs:
-        travel_time_without_sc: name
-        stat_corrs: name
+        - travel_time_without_sc
+        - stat_corrs
       outputs:
         - travel_time_with_sc
 
     get_cube:
       inputs:
-        travel_time: class
-        filtered_traces: class
-        region: name
+        - travel_time
+        - filtered_traces
+        - region
       outputs:
         - cube_without_tensor_moment
     
     get_cube_with_tensor:
       inputs:
-        travel_time: name
-        filtered_traces: class
-        region: name
-        tensor: name
+        - travel_time
+        - filtered_traces
+        - region
+        - tensor
       outputs:
         - cube_with_tensor_moment
     
     get_cumsum:
       inputs:
-        cube_without_cumsum: class
+       - cube_without_cumsum
       outputs:
        - cube_with_cumsum
     
     get_detect_function:
       inputs:
-        cube: class
+        - cube
       outputs:
         - detect_function
     
     get_maxes:
       inputs:
-        cube: class
-        detect_function: name
-        region: name
+        - cube
+        - detect_function
+        - region
       outputs:
         - raw_maxes
 
     filter_maxes:
       inputs:
-        raw_maxes: name
+        - raw_maxes
       outputs:
         - filtered_maxes
     
     get_slice:
       inputs:
-        maxes: class
-        cube: name
-        region: name
-        rec_coords: name
+        - maxes
+        - cube
+        - region
+        - rec_coords
       outputs:
         - slices
     
     plot_detect_function:
       inputs:
-        detect_function: name
+        - detect_function
       outputs:
         - chart_detect_function
     
     draw_tt_at_traces:
       inputs:
-        maxes: class
-        filtered_traces: class
-        travel_time: name
-        region: name
+        - maxes
+        - filtered_traces
+        - travel_time
+        - region
       outputs:
         - chart_tt_at_traces
     
     draw_maxes_at_detect_function:
       inputs:
-        detect_function: name
-        maxes: class
+        - detect_function
+        - maxes
       outputs:
         - chart_max_at_detect_function
     
     draw_maxes_at_timeline:
       inputs:
-        maxes: class
+        - maxes
       outputs:
         - chart_maxes_at_timeline
     
     draw_maxes_at_square:
       inputs:
-        maxes: class
+        - maxes
       outputs:
         - chart_maxes_at_square

@@ -419,7 +419,7 @@ get_slice:
       description: "path to region obj"
       type: "str"
     rec_coords_on_net_path:
-      name: "rec_coords_on_net"
+      name: "rec_coords"
       description: "path to receivers coords obj"
       type: "str"
   expnad: cube_path
