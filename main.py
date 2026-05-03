@@ -1,5 +1,6 @@
 from comp_model.ComputeModel import ComputeModel
 from generators import DAGGenerator, WorkflowGenerator, Generator
+import yaml
 
 import os
 from pathlib import Path
@@ -7,8 +8,12 @@ from pathlib import Path
 path = Path(os.path.dirname(os.path.abspath(__file__)))
 path_to_yamls = path / "data" / "yaml" 
 path_to_graph = path_to_yamls / "graph.yaml"
+path_to_map_code = path_to_yamls / "mapModelToCode.yaml"
 
-cm = ComputeModel(path_to_graph)
+with open(path_to_graph, "r") as f:
+    graph_data = yaml.safe_load(f)
+
+cm = ComputeModel(graph_data)
 inputs = ["traces_path"]
 outputs = ["hilb_traces"]
 
@@ -26,7 +31,10 @@ inputs = {
     'read_traces__normalize': False,
 }
 
-wf_generator = WorkflowGenerator(path_to_yamls / "mapModelToCode.yaml", ordered_sg, reversed_rel, True)
+with open(path_to_map_code, "r") as f:
+    map_data = yaml.safe_load(f)
+
+wf_generator = WorkflowGenerator(map_data, ordered_sg, reversed_rel, True)
 var_map = wf_generator.get_declaration_file(
     path,
     "/home/golub/execucore_ops/",
@@ -60,7 +68,7 @@ wf_generator.get_application_file(
     var_map
 ) 
 
-dag_generator = DAGGenerator(path_to_yamls / "mapModelToCode.yaml", ordered_sg, reversed_rel, True)
+dag_generator = DAGGenerator(map_data, ordered_sg, reversed_rel, True)
 dag_generator.get_declaration_file(
     "test_dag.yaml",
     inputs, 

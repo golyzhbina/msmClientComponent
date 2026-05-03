@@ -5,7 +5,7 @@ from .FictiveOperation import FictiveOperation
 from .Characteristic import Characteristic
 from logic_normal_forms import build_knf, parse_dnf
 
-from typing import Dict, Tuple, List, Union, TypeAlias
+from typing import Dict, Tuple, List, Union, TypeAlias, Optional
 from collections import OrderedDict, deque
 from copy import deepcopy
 from enum import Enum
@@ -21,16 +21,13 @@ class NodeType(Enum):
 
 class ComputeModel:
 
-    def __init__(self, path_to_model: str):
-
-        with open(path_to_model, "r") as f:
-            model_dict = yaml.safe_load(f)
-
+    def __init__(
+        self,
+        model_dict: dict
+    ):
         self.characteristics: Dict[str, Characteristic] = \
         self.__read_characteristics(model_dict["operation_characteristics"])
-
         self.relationship, self.nodes = self.__read_graph(model_dict["graph"])
-
         self.graph: Graph = Graph(self.relationship) 
 
     def __get_fictive_operation_name(self, var_name, var_class):

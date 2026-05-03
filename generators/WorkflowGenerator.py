@@ -5,8 +5,19 @@ import json
 from pathlib import Path
 
 class WorkflowGenerator(Generator):
-    def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict, use_parallelism: bool = False):
-        super().__init__(filename, subgraph, reversed_subgraph, use_parallelism)
+    def __init__(
+        self,
+        map_cm_to_code: dict,
+        subgraph: OrderedDict,
+        reversed_subgraph: dict,
+        use_parallelism: bool = False
+    ):
+        super().__init__(
+            map_cm_to_code,
+            subgraph,
+            reversed_subgraph,
+            use_parallelism
+        )
         self.use_parallelism = use_parallelism
     
     def __get_toml_name(self, op, var):

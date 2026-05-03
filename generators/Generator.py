@@ -1,15 +1,20 @@
 import yaml
 from collections import OrderedDict
+from copy import deepcopy
 
 class Generator:
     map_cm_to_code: dict = None
     subgraph: OrderedDict = None
 
-    def __init__(self, filename: str, subgraph: OrderedDict, reversed_subgraph: dict, use_parallelism = False):
-        
-        with open(filename, "r") as f:
-            self.map_cm_to_code = yaml.safe_load(f)
+    def __init__(
+        self,
+        map_cm_to_code: dict,
+        subgraph: OrderedDict,
+        reversed_subgraph: dict,
+        use_parallelism=False
+    ):
 
+        self.map_cm_to_code = map_cm_to_code
         self.use_parallelism = use_parallelism
         self.subgraph: OrderedDict = subgraph
         self.variables: dict = reversed_subgraph
@@ -22,6 +27,7 @@ class Generator:
             inputs[op] = dict()
             map_info = self.map_cm_to_code[op]
             for v_name, v_info in map_info["variables"].items():
+                v_info = deepcopy(v_info)
                 map_name = v_info.get("name", None)
                 var_id = map_name
 
