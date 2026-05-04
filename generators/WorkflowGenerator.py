@@ -212,7 +212,7 @@ class WorkflowGenerator(Generator):
                 "name" : "path",
                 "type": "str",
                 "description" : "path to decalration and app file",
-                "default" : "/home/golub/flask_app"
+                "default" : "/home/golub/execucore_ops"
             },
 
             {

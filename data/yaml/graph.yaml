@@ -217,10 +217,20 @@ graph:
       inputs:
         - maxes
         - filtered_traces
-        - travel_time
+        - travel_time_without_sc
         - region
       outputs:
-        - chart_tt_at_traces
+        - chart_tt_at_traces_wo_sc
+    
+    draw_tt_at_traces_with_sc:
+      inputs:
+        - maxes
+        - filtered_traces
+        - travel_time_without_sc
+        - region
+        - stat_corrs
+      outputs:
+        - chart_tt_at_traces_with_sc
     
     draw_maxes_at_detect_function:
       inputs:
@@ -238,5 +248,6 @@ graph:
     draw_maxes_at_square:
       inputs:
         - maxes
+        - region
       outputs:
         - chart_maxes_at_square

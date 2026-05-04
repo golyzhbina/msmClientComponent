@@ -27,14 +27,15 @@ class Generator:
             inputs[op] = dict()
             map_info = self.map_cm_to_code[op]
             for v_name, v_info in map_info["variables"].items():
+                print(v_name, v_info)
                 v_info = deepcopy(v_info)
                 map_name = v_info.get("name", None)
                 var_id = map_name
 
                 if var_id  in added_vars:
                     continue
-
-                if self.use_parallelism and v_name == map_info.get("expand"):
+                
+                if self.use_parallelism and v_name in map_info.get("expand", []):
                     v_info["type"] = f"List[{v_info['type']}]"
 
                 if map_name in self.variables and \

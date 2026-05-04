@@ -162,7 +162,7 @@ read_traces:
   execucore:
     type: "map"
     scalar_wrapper: traces_read_traces
-    scalar_wrapper: traces_read_traces
+    parallel_wrapper: traces_read_traces_par
 
   description: "read data from SGY file"
   variables:
@@ -174,7 +174,8 @@ read_traces:
       type: "bool"
       default: false
       description: "if the value is True, then each trace is normalized to the maximum value"
-  expand: "filename"
+  expand: 
+    - "filename"
 
 
 get_stat_corrs:
@@ -246,7 +247,7 @@ hilb_filtration:
   execucore:
     type: "map"
     scalar_wrapper: traces_hilb_filtration
-    scalar_wrapper: traces_hilb_filtration
+    parallel_wrapper: traces_hilb_filtration_par
 
   description: ""
   variables:
@@ -254,7 +255,8 @@ hilb_filtration:
       name: "traces"
       type: "str"
       description: "path to traces obj"
-  expand: "traces_path"
+  expand: 
+    - "traces_path"
 
 
 abs_filtration:
@@ -264,7 +266,7 @@ abs_filtration:
   execucore:
     type: "map"
     scalar_wrapper: traces_abs_filtration
-    scalar_wrapper: traces_abs_filtration
+    parallel_wrapper: traces_abs_filtration_par
 
   description: ""
   variables:
@@ -272,7 +274,8 @@ abs_filtration:
       name: "traces"
       type: "str"
       description: "path to traces obj"
-  expand: "traces_path"
+  expand: 
+    - "traces_path"
 
 
 frequency_filtration:
@@ -282,7 +285,7 @@ frequency_filtration:
   execucore:
     type: "map"
     scalar_wrapper: traces_frequency_filtration
-    scalar_wrapper: traces_frequency_filtration
+    parallel_wrapper: traces_frequency_filtration_par
 
   description: ""
   variables:
@@ -290,7 +293,8 @@ frequency_filtration:
       name: "traces"
       type: "str"
       description: "path to traces obj"
-  expand: "traces_path"
+  expand: 
+    - "traces_path"
 
 
 merge_traces:
@@ -299,7 +303,7 @@ merge_traces:
   execucore:
     type: "map"
     scalar_wrapper: traces_merge_traces
-    scalar_wrapper: traces_merge_traces
+    parallel_wrapper: traces_merge_traces_par
 
   description: ""
   variables:
@@ -313,7 +317,9 @@ merge_traces:
     part_size:
       type: "int"
       description: "number of loaded traces"
-    expand: traces1_path
+  expand: 
+    - traces1_path
+    - traces2_path
 
 
 get_cube:
@@ -323,7 +329,7 @@ get_cube:
   execucore:
     type: "map"
     scalar_wrapper: cube_get_cube
-    scalar_wrapper: cube_get_cube
+    parallel_wrapper: cube_get_cube_par
 
   description: "coherent summation"
   variables:
@@ -342,7 +348,8 @@ get_cube:
     time_interval:
       type: "List[int]"
       description: "summation time interval"
-  expand: traces_path
+  expand: 
+    - traces_path
 
 
 get_cube_with_tensor:
@@ -352,7 +359,7 @@ get_cube_with_tensor:
   execucore:
     type: "map"
     scalar_wrapper: cube_get_cube_with_tm
-    scalar_wrapper: cube_get_cube_with_tm
+    parallel_wrapper: cube_get_cube_with_tm_par
 
   description: "coherent summation with tensor moment"
   variables:
@@ -368,6 +375,8 @@ get_cube_with_tensor:
     tensor_path:
       name: "tensor"
       description: ""
+  expand:
+    - traces_path
 
 
 get_cumsum:
@@ -377,7 +386,7 @@ get_cumsum:
   execucore:
     type: "map"
     scalar_wrapper: cube_get_cumsum
-    scalar_wrapper: cube_get_cumsum
+    parallel_wrapper: cube_get_cumsum_par
 
   description: "cumulative summation with a window of kernel_size"
   variables:
@@ -392,7 +401,8 @@ get_cumsum:
       type: bool
       default: false
       description: "If the parameter is True, then kernel_size zeros are added to the end of each cube trace"
-  expand: cube_path
+  expand: 
+    - cube_path
 
 
 get_slice:
@@ -402,7 +412,7 @@ get_slice:
   execucore:
     type: "map"
     scalar_wrapper: interpret_get_slices
-    scalar_wrapper: interpret_get_slices
+    parallel_wrapper: interpret_get_slices_par
 
   description: "constructs slices of a cube by time at its maxima"
   variables:
@@ -422,17 +432,19 @@ get_slice:
       name: "rec_coords"
       description: "path to receivers coords obj"
       type: "str"
-  expnad: cube_path
+  expand: 
+    - cube_path
+    - maxes_path
 
 
 get_detect_function:
 
   airflow:
     scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.get_df_helper"
-  execucre:
+  execucore:
     type: "map"
     scalar_wrapper: interpret_get_detect_func
-    scalar_wrapper: interpret_get_detect_func
+    parallel_wrapper: interpret_get_detect_func_par
 
   description: "obtains maximum cube values ​​along the time axis"
   variables:
@@ -442,8 +454,9 @@ get_detect_function:
       type: str
     time_interval:
       description: ""
-      type: "[i32]"
-  expand: cube_path
+      type: "List[int]"
+  expand: 
+    - cube_path
 
 
 plot_detect_function:
@@ -453,7 +466,7 @@ plot_detect_function:
   execucore:
     type: "map"
     scalar_wrapper: interpret_plot_detect_func
-    scalar_wrapper: interpret_plot_detect_func
+    parallel_wrapper: interpret_plot_detect_func_par
 
   description: "plot detect func"
   variables:
@@ -464,7 +477,8 @@ plot_detect_function:
     thresh_hold:
       type: "float"
       description: "maximum threshold value"
-  expand: detect_function_path
+  expand: 
+    - detect_function_path
 
 
 get_maxes:
@@ -474,7 +488,7 @@ get_maxes:
   execucore:
     type: "map"
     scalar_wrapper: maxes_find_maxes
-    scalar_wrapper: maxes_find_maxes
+    parallel_wrapper: maxes_find_maxes_par
 
   description: ""
   variables:
@@ -490,8 +504,9 @@ get_maxes:
       name: "region"
       description: ""
       type: "str"
-  expand: cube_path
-
+  expand: 
+    - cube_path
+    - detect_function_path
 
 filter_maxes:
 
@@ -500,7 +515,7 @@ filter_maxes:
   execucore:
     type: "map"
     scalar_wrapper: maxes_filtered_maxes
-    scalar_wrapper: maxes_filtered_maxes
+    parallel_wrapper: maxes_filtered_maxes_par
 
   description: ""
   variables:
@@ -517,7 +532,8 @@ filter_maxes:
     kernel_size:
       description: ""
       type: "float"
-  expand: maxes_path
+  expand: 
+    - maxes_path
 
 
 draw_maxes_at_detect_function:
@@ -527,7 +543,7 @@ draw_maxes_at_detect_function:
   execucore:
     type: "map"
     scalar_wrapper: interpret_draw_maxes_at_df
-    scalar_wrapper: interpret_draw_maxes_at_df
+    parallel_wrapper: interpret_draw_maxes_at_df_par
 
   description: ""
   variables:
@@ -539,7 +555,9 @@ draw_maxes_at_detect_function:
       name: "detect_function"
       description: "path to detect_function object"
       type: str
-  expand: maxes_path
+  expand: 
+    - maxes_path
+    - detect_function_path
 
 
 draw_tt_at_traces:
@@ -549,7 +567,7 @@ draw_tt_at_traces:
   execucore:
     type: "map"
     scalar_wrapper: interpret_draw_tt_at_traces
-    scalar_wrapper: interpret_draw_tt_at_traces
+    parallel_wrapper: interpret_draw_tt_at_traces_par
 
   description: ""
   variables:
@@ -572,15 +590,45 @@ draw_tt_at_traces:
     radius:
       type: "int"
       description: "maximum highlight radius on the traces"
-    vmin:
-      type: "float"
-      description: "vmin of plt.imshow()"
-      default: None
-    vmax:
-      type: "float"
-      description: "vmax of plt.imshow()"
-      default: None
-  expand: traces_path
+  expand: 
+    - traces_path
+
+draw_tt_at_traces_with_sc:
+
+  airflow:
+    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_helper"
+  execucore:
+    type: "map"
+    scalar_wrapper: interpret_draw_tt_at_traces_with_sc
+    parallel_wrapper: interpret_draw_tt_at_traces_with_sc_par
+
+  description: ""
+  variables:
+    maxes_path:
+      name: "maxes"
+      description: "path to maxes object"
+      type: str
+    traces_path:
+      name: "filtered_traces"
+      type: str
+      description: "path to traces object"
+    tt_path:
+      name: "travel_time"
+      description: "parh to travel time object"
+      type: str
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+    radius:
+      type: "int"
+      description: "maximum highlight radius on the traces"
+    stat_corrs_path:
+      type: "str"
+      description: "path to stat corrs object"
+      name: "stat_corrs"
+  expand: 
+    - traces_path
 
 
 draw_maxes_at_timeline:
@@ -590,13 +638,16 @@ draw_maxes_at_timeline:
   execucore:
     type: "map"
     scalar_wrapper: interpret_draw_all_maxes_at_timeline
+    paralel_wrapper: interpret_draw_all_maxes_at_timeline_par
 
   description: "plot maxes at timeline"
   variables:
-    maxes_list_path:
+    maxes_path:
       type: "str"
       name: "maxes"
       description: "path to maxes object"
+  expand:
+    - maxes_path
 
 
 draw_maxes_at_square:
@@ -606,10 +657,17 @@ draw_maxes_at_square:
   execucore:
     type: "map"
     scalar_wrapper: interpret_draw_all_maxes_at_square
+    parallel_wrapper: interpret_draw_all_maxes_at_square_par
 
   description: "plot maxes at source region"
   variables:
-    maxes_list_path:
+    maxes_path:
       type: "str"
       name: "maxes"
       description: "path to maxes object"
+    region_path:
+      name: "region"
+      description: "path to region object"
+      type: "str"
+  expand:
+    - maxes_path
