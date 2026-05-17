@@ -27,7 +27,6 @@ class Generator:
             inputs[op] = dict()
             map_info = self.map_cm_to_code[op]
             for v_name, v_info in map_info["variables"].items():
-                print(v_name, v_info)
                 v_info = deepcopy(v_info)
                 map_name = v_info.get("name", None)
                 var_id = map_name
