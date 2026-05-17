@@ -1,6 +1,5 @@
 # Установка
--
-
+=
 ```
 git clone git@github.com:golyzhbina/msmClientComponent.git
 cd msmClientComponent
