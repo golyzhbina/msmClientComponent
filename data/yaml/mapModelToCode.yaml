@@ -201,13 +201,13 @@ get_stat_corrs:
       description: "path to travel time object"
       name: "travel_time_without_sc"
     window_size:
-      type: "i32"
+      type: "int"
       decription: "max corrections"
     amount_iter:
-      type: "i32"
+      type: "int"
       decription: ""
     batch_size:
-      type: "i32"
+      type: "int"
       decription: "amount traces for calculate etalon"
     time_interval:
       type: "List[int]"
@@ -345,9 +345,6 @@ get_cube:
       name: "region"
       description: "path to region object"
       type: "str"
-    time_interval:
-      type: "List[int]"
-      description: "summation time interval"
   expand: 
     - traces_path
 
@@ -452,9 +449,6 @@ get_detect_function:
       name: "cube"
       description: "path to cube object"
       type: str
-    time_interval:
-      description: ""
-      type: "List[int]"
   expand: 
     - cube_path
 
@@ -590,43 +584,13 @@ draw_tt_at_traces:
     radius:
       type: "int"
       description: "maximum highlight radius on the traces"
-  expand: 
-    - traces_path
+    vmax:
+      type: "float"
+      description: ""
+    vmin:
+      type: "float"
+      description: ""
 
-draw_tt_at_traces_with_sc:
-
-  airflow:
-    scalar_wrapper: "msm_dags_ops.result_interpret_wrappers.draw_tt_at_traces_helper"
-  execucore:
-    type: "map"
-    scalar_wrapper: interpret_draw_tt_at_traces_with_sc
-    parallel_wrapper: interpret_draw_tt_at_traces_with_sc_par
-
-  description: ""
-  variables:
-    maxes_path:
-      name: "maxes"
-      description: "path to maxes object"
-      type: str
-    traces_path:
-      name: "filtered_traces"
-      type: str
-      description: "path to traces object"
-    tt_path:
-      name: "travel_time"
-      description: "parh to travel time object"
-      type: str
-    region_path:
-      name: "region"
-      description: "path to region object"
-      type: "str"
-    radius:
-      type: "int"
-      description: "maximum highlight radius on the traces"
-    stat_corrs_path:
-      type: "str"
-      description: "path to stat corrs object"
-      name: "stat_corrs"
   expand: 
     - traces_path
 

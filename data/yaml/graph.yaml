@@ -1,6 +1,20 @@
 operation_characteristics:
-  diff:
+  amount_ops:
     default: 1.0
+  ac_n^3:
+    default: 0
+  ac_n^2:
+    default: 0
+  ac_n^1:
+    default: 0
+  out_mem_n^3:
+    default: 0
+  out_mem_n^2:
+    default: 0
+  out_mem_n^1:
+    default: 0
+  out_mem_const:
+    default: 0
 
 graph:
   variables:
@@ -55,6 +69,7 @@ graph:
     chart_max_at_detect_function: []
     chart_maxes_at_timeline: []
     chart_maxes_at_square: []
+    traces_to_merge: []
 
   operations:
     load_vel:
@@ -62,12 +77,18 @@ graph:
         - veldata_path
       outputs:
         - veldata_with_regular_depth
+      characters:
+        ac_n^1: 1
+        out_mem_n^1: 1
 
     load_vel_with_deps:
       inputs:
         - veldata_path
       outputs:
         - veldata_with_irregular_depth
+      characters:
+        ac_n^1: 1
+        out_mem_n^1: 1
   
     get_velmodel:
       inputs:
@@ -76,12 +97,19 @@ graph:
         - rec_coords
       outputs:
         - velmodel
+      characters:
+        ac_n^1: 2
+        ac_n^2: 2
+        out_mem_n^2: 1
     
     read_recs:
       inputs:
         - rec_coords_path
       outputs:
         - rec_coords
+      characters:
+        ac_n^1: 1
+        out_mem_n^1: 1
     
     get_coords_on_net:
       inputs:
@@ -89,18 +117,27 @@ graph:
         - region
       outputs:
         - rec_coords_on_net
+      characters:
+        ac_n^2: 1
+        out_mem_n^1: 1
     
     create_region:
       inputs:
         - region_coords
       outputs:
         - region
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
     
     solve_eikonal:
       inputs:
         - velmodel
       outputs:
         - eikonal_solve
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
     
     get_travel_time:
       inputs:
@@ -108,36 +145,55 @@ graph:
         - rec_coords_on_net
       outputs:
         - travel_time_without_sc
+      characters:
+        ac_n^2: 2
+        out_mem_n^2: 1
     
     read_traces:
       inputs:
         - traces_path
       outputs:
         - raw_traces
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
 
     merge_traces:
       inputs:
         - raw_traces
+        - traces_to_merge
       outputs:
         - merged_traces
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
     
     frequency_filtration:
       inputs:
         - traces
       outputs:
         - freq_traces
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
       
     abs_filtration:
       inputs:
         - traces
       outputs:
         - abs_traces
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
 
     hilb_filtration:
       inputs:
         - traces
       outputs:
         - hilb_traces
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
 
     get_stat_corrs:
       inputs:
@@ -146,6 +202,9 @@ graph:
         - travel_time_without_sc
       outputs:
         - stat_corrs
+      characters:
+        ac_n^3: 1
+        out_mem_n^1: 1
       
 
     apply_stat_corrs:
@@ -154,6 +213,9 @@ graph:
         - stat_corrs
       outputs:
         - travel_time_with_sc
+      characters:
+        ac_n^2: 1
+        out_mem_n^2: 1
 
     get_cube:
       inputs:
@@ -162,6 +224,9 @@ graph:
         - region
       outputs:
         - cube_without_tensor_moment
+      characters:
+        ac_n^3: 1
+        out_mem_n^3: 1
     
     get_cube_with_tensor:
       inputs:
@@ -171,18 +236,27 @@ graph:
         - tensor
       outputs:
         - cube_with_tensor_moment
+      characters:
+        ac_n^3: 1
+        out_mem_n^3: 1
     
     get_cumsum:
       inputs:
        - cube_without_cumsum
       outputs:
        - cube_with_cumsum
+      characters:
+        ac_n^2: 1
+        out_mem_n^3: 1
     
     get_detect_function:
       inputs:
         - cube
       outputs:
         - detect_function
+      characters:
+        ac_n^2: 1
+        out_mem_n^1: 1
     
     get_maxes:
       inputs:
@@ -191,12 +265,18 @@ graph:
         - region
       outputs:
         - raw_maxes
+      characters:
+        ac_n^2: 1
+        out_mem_n^1: 1
 
     filter_maxes:
       inputs:
         - raw_maxes
       outputs:
         - filtered_maxes
+      characters:
+        ac_n^2: 1
+        out_mem_n^1: 1
     
     get_slice:
       inputs:
@@ -206,31 +286,30 @@ graph:
         - rec_coords
       outputs:
         - slices
+      characters:
+        ac_n^2: 1
+        out_mem_const: 1
     
     plot_detect_function:
       inputs:
         - detect_function
       outputs:
         - chart_detect_function
+      characters:
+        ac_n^1: 1
+        out_mem_const: 1
     
     draw_tt_at_traces:
       inputs:
         - maxes
         - filtered_traces
-        - travel_time_without_sc
+        - travel_time
         - region
       outputs:
         - chart_tt_at_traces_wo_sc
-    
-    draw_tt_at_traces_with_sc:
-      inputs:
-        - maxes
-        - filtered_traces
-        - travel_time_without_sc
-        - region
-        - stat_corrs
-      outputs:
-        - chart_tt_at_traces_with_sc
+      characters:
+        ac_n^3: 1
+        out_mem_const: 1
     
     draw_maxes_at_detect_function:
       inputs:
@@ -238,12 +317,18 @@ graph:
         - maxes
       outputs:
         - chart_max_at_detect_function
+      characters:
+        ac_n^2: 1
+        out_mem_const: 1
     
     draw_maxes_at_timeline:
       inputs:
         - maxes
       outputs:
         - chart_maxes_at_timeline
+      characters:
+        ac_n^1: 1
+        out_mem_const: 1
     
     draw_maxes_at_square:
       inputs:
@@ -251,3 +336,6 @@ graph:
         - region
       outputs:
         - chart_maxes_at_square
+      characters:
+        ac_n^1: 1
+        out_mem_const: 1
