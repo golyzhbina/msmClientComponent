@@ -104,7 +104,11 @@ class WorkflowGenerator(Generator):
                         {"type": self.__map_type(data["type"])}
                     
                 v_name = self.__get_toml_name(op, var)
-                v_name = unique_variables_map.get(v_name, v_name)
+                v_name = unique_variables_map.get(v_name, None)
+
+                if not v_name:
+                    continue
+                
                 var_id = data.get("name", Generator.get_var_id(op, var))
                 if var_id in inputs:
                     var_descr["is_input"] = True
