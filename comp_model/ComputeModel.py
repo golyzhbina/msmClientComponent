@@ -60,8 +60,6 @@ class ComputeModel:
             op = Operation(op_name, op_descr.get("class", op_name), op_descr.get("characters", {}))
             nodes[op_name] = op
             relationship[op_name] = [op_descr["inputs"], op_descr["outputs"]]
-            print(op_name)
-
         
         for var_class, var_list in var_classes.items():
             if len(var_list) == 1 and var_list[0] != var_class:
