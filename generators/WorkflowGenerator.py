@@ -61,6 +61,8 @@ class WorkflowGenerator(Generator):
             for var, data in self.map_cm_to_code[op]["variables"].items():
                 if data.get("name", None):
                     unique_variables_map[self.__get_toml_name(op, var)] = data["name"]
+                else:
+                    unique_variables_map[self.__get_toml_name(op, var)] = self.__get_toml_name(op, var)
             
             for var in self.subgraph[op][1]:
                 unique_variables_map[self.__get_toml_name(op, var)] = var
@@ -104,16 +106,13 @@ class WorkflowGenerator(Generator):
                         {"type": self.__map_type(data["type"])}
                     
                 v_name = self.__get_toml_name(op, var)
-                v_name = unique_variables_map.get(v_name, None)
+                v_name = unique_variables_map.get(v_name, v_name)
 
-                if not v_name:
-                    continue
-                
                 var_id = data.get("name", Generator.get_var_id(op, var))
                 if var_id in inputs:
                     var_descr["is_input"] = True
-                
-                workflow_declaration_dict["variables"][v_name] = var_descr
+                    
+                workflow_declaration_dict["variables"][v_name] = var_descr    
             
             for var in self.subgraph[op][1]:
                 
@@ -216,21 +215,19 @@ class WorkflowGenerator(Generator):
                 "name" : "path",
                 "type": "str",
                 "description" : "path to decalration and app file",
-                "default" : "/home/golub/execucore_ops"
             },
 
             {
                 "name" : "execucore ops path",
                 "type": "str",
                 "description" : "path to decalration and app file",
-                "default" : "file://localhost/home/golub/execucore_ops"
             },
 
             {
                 "name" : "domain",
                 "type": "str",
                 "description" : "",
-                "default": "msm"
+                "default": "test_domain"
             },
 
             {
@@ -244,7 +241,6 @@ class WorkflowGenerator(Generator):
                 "name" : "username",
                 "type": "str",
                 "description" : "",
-                "default": "golub"
             },
 
             {
@@ -258,7 +254,6 @@ class WorkflowGenerator(Generator):
                 "name" : "remote.name",
                 "type": "str",
                 "description" : "name of remote user",
-                "default": "executor"
             },
 
             { 
